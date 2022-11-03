@@ -7,8 +7,15 @@
 # This is a so-called "R chunk" where you can write R code.
 
 date()
-print("Hello World")
 ```
 The text continues here.
 
 Hello World, why are my commits not pushing through?
+
+I _was_ feeling happy and motivated! I got R, Rstudio, Git and Github up and running.
+Now I see my commits on Github but unfortunately my diary is not updating.
+Apparently, according to Github, the updated of a public page may take up to 24h. I feel like that is a very long time and I wonder if commits made directly on (not remotely with Git) Github would take as long.
+
+I discovered the IODS-course on an email sent to all doctoral schools. I'm looking forward to learning about rMarkdown, project management in Github and clustering.
+
+Looking forward to this course!
