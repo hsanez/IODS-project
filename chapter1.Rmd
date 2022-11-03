@@ -22,3 +22,20 @@ Apparently, according to Github, the updated of a public page may take up to 24h
 I discovered the IODS-course on an email sent to all doctoral schools. I'm looking forward to learning about rMarkdown, project management in Github and clustering.
 
 Looking forward to this course!
+
+
+Update: I got to attend our course IT-help-zoom. It was great! Even though my diary did not update despite our efforts. Apparently everything looks good and my diary should update if I wait some more. The info was reassuring so I'm waiting more serenely now! I did read from GitHub Guides that updating a public page might take up to 24h to update so maybe we'll see some great changes tomorrow!
+
+Meanwhile, I'll keep myself busy with [R for Health Data Science](https://argoshare.is.ed.ac.uk/healthyr_book/) as suggested during the course introduction lecture. It seems very informative and easy to read. I'm somewhat familiar with R but I haven't used tidyverse much. Piping gets me a bit confused but it's my favorite topic! Exercise Set 1 seems interesting, it did require some package installations, but I'm good to go now and ready to keep working now that all packages are...packed along!
+
+![Yay! A happy girl at a laptop By Marina Vishtak](IODS-project_figs/Yay_a_happy_girl_at_a_laptop_by_Marina_Vishtak.png){width=50% height=50%}
+
+
+
+## Resources used:
+* [R](https://www.r-project.org)
+* [RStudio](https://www.rstudio.com)
+* [GitHub](https://github.com)
+* [Git](https://git-scm.com)
+* [R for Health Data Science](https://argoshare.is.ed.ac.uk/healthyr_book/)
+* [Beautiful art by Marina Vishtak](https://dribbble.com/shots/15062030-Yay-A-happy-girl-at-a-laptop/attachments/6789876?mode=media)
