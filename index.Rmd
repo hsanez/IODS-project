@@ -1,5 +1,6 @@
 ---
 title: "IODS course project"
+author: "H. Sanez"
 output:
   html_document:
     theme: cosmo
