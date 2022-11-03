@@ -10,6 +10,9 @@ date()
 ```
 The text continues here.
 
+Hello, testing this!! ZOM!
+
+
 Hello World, why are my commits not pushing through?
 
 I _was_ feeling happy and motivated! I got R, Rstudio, Git and Github up and running.
