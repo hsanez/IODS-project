@@ -31,6 +31,9 @@ Meanwhile, I'll keep myself busy with [R for Health Data Science](https://argosh
 **Update v2**
 We did it! The diary has updated itself after 2h 13min of me patiently waiting (and eagerly non-stop pushing new commits).
 
+**Link to my Github repo: **
+[https://github.com/hsanez/IODS-project](https://github.com/hsanez/IODS-project)
+
 ![Yay! A happy girl at a laptop By Marina Vishtak](IODS-project_figs/Yay_a_happy_girl_at_a_laptop_by_Marina_Vishtak.png){width=50% height=50%}
 
 
