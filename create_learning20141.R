@@ -1,6 +1,7 @@
 #hsanez 9.11.2022
 #create_learning20141.R
 #Creating the data for ch2 analysis
+# UH IODS-project, template and data forked from https://github.com/KimmoVehkalahti/IODS-project
 
 # CONTENTS
 ## 2.0 INSTALL THE REQUIRED PACKAGES FIRST!
