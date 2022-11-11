@@ -352,8 +352,8 @@ display: none;
 </div>
 
 
-<div id="insert-chapter-2-title-here" class="section level1">
-<h1>Insert chapter 2 title here</h1>
+<div id="ch2-regression-and-model-validation" class="section level1">
+<h1>Ch2 Regression and model validation</h1>
 <p><em>Describe the work you have done this week and summarize your
 learning.</em></p>
 <ul>
@@ -364,9 +364,44 @@ writing and reading R code as well as statistical methods.</li>
 advanced methods you are using.</li>
 </ul>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Tue Nov  8 11:47:33 2022&quot;</code></pre>
+<pre><code>## [1] &quot;Fri Nov 11 15:17:01 2022&quot;</code></pre>
 <p>Here we go again…</p>
-<p>Testing this after token change Test no 2!</p>
+<div id="data-wrangling" class="section level2">
+<h2>Data wrangling</h2>
+<div id="read-data-1p.-heavy_check_mark" class="section level3">
+<h3>Read data (1p.) :heavy_check_mark:</h3>
+<p>Create a folder named ‘data’ in your IODS-project folder. Then create
+a new R script with RStudio. Write your name, date and a one sentence
+file description as a comment on the top of the script file. Save the
+script for example as ‘create_learning2014.R’ in the ‘data’ folder.
+Complete the rest of the steps in that script.</p>
+<p>Read the full learning2014 data from <a href="http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt" class="uri">http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt</a>
+into R (the separator is a tab (“) and the file includes a header) and
+explore the structure and dimensions of the data. Write short code
+comments describing the output of these explorations. (1 point)</p>
+</div>
+<div id="create-an-analysis-dataset-1p." class="section level3">
+<h3>[ ] Create an analysis dataset (1p.)</h3>
+<p>Create an analysis dataset with the variables gender, age, attitude,
+deep, stra, surf and points by combining questions in the learning2014
+data, as defined in the Exercise Set and also on the bottom part of the
+following page (only the top part of the page is in Finnish). <a href="http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt" class="uri">http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt</a>.
+Scale all combination variables to the original scales (by taking the
+mean). Exclude observations where the exam points variable is zero. (The
+data should then have 166 observations and 7 variables) (1 point)</p>
+</div>
+<div id="save-new-data-set-3p." class="section level3">
+<h3>[ ] Save new data set (3p.)</h3>
+<p>Set the working directory of your R session to the IODS Project
+folder (study how to do this with RStudio). Save the analysis dataset to
+the ‘data’ folder, using for example write_csv() function (readr
+package, part of tidyverse). You can name the data set for example as
+learning2014.csv. See ?write_csv for help or search the web for pointers
+and examples. Demonstrate that you can also read the data again by using
+read_csv(). (Use <code>str()</code> and <code>head()</code> to make sure
+that the structure of the data is correct). (3 points)</p>
+</div>
+</div>
 </div>
 
 
