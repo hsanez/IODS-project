@@ -364,12 +364,12 @@ writing and reading R code as well as statistical methods.</li>
 advanced methods you are using.</li>
 </ul>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Fri Nov 11 15:17:01 2022&quot;</code></pre>
+<pre><code>## [1] &quot;Fri Nov 11 16:00:37 2022&quot;</code></pre>
 <p>Here we go again…</p>
 <div id="data-wrangling" class="section level2">
 <h2>Data wrangling</h2>
 <div id="read-data-1p.-heavy_check_mark" class="section level3">
-<h3>Read data (1p.) :heavy_check_mark:</h3>
+<h3>1. Read data (1p.) :heavy_check_mark:</h3>
 <p>Create a folder named ‘data’ in your IODS-project folder. Then create
 a new R script with RStudio. Write your name, date and a one sentence
 file description as a comment on the top of the script file. Save the
@@ -381,7 +381,7 @@ explore the structure and dimensions of the data. Write short code
 comments describing the output of these explorations. (1 point)</p>
 </div>
 <div id="create-an-analysis-dataset-1p." class="section level3">
-<h3>[ ] Create an analysis dataset (1p.)</h3>
+<h3>2. [ ] Create an analysis dataset (1p.)</h3>
 <p>Create an analysis dataset with the variables gender, age, attitude,
 deep, stra, surf and points by combining questions in the learning2014
 data, as defined in the Exercise Set and also on the bottom part of the
@@ -391,7 +391,7 @@ mean). Exclude observations where the exam points variable is zero. (The
 data should then have 166 observations and 7 variables) (1 point)</p>
 </div>
 <div id="save-new-data-set-3p." class="section level3">
-<h3>[ ] Save new data set (3p.)</h3>
+<h3>3. [ ] Save new data set (3p.)</h3>
 <p>Set the working directory of your R session to the IODS Project
 folder (study how to do this with RStudio). Save the analysis dataset to
 the ‘data’ folder, using for example write_csv() function (readr
@@ -400,6 +400,85 @@ learning2014.csv. See ?write_csv for help or search the web for pointers
 and examples. Demonstrate that you can also read the data again by using
 read_csv(). (Use <code>str()</code> and <code>head()</code> to make sure
 that the structure of the data is correct). (3 points)</p>
+</div>
+</div>
+<div id="analysis" class="section level2">
+<h2>Analysis</h2>
+<p>The Analysis exercise focuses on performing and interpreting
+regression analysis. For completing the Analysis exercises,
+<strong><span style="color: red;">include all the codes, your
+interpretations and explanations in the R Markdown file
+chapter2.Rmd</span></strong>, which already exists in your course
+project folder.</p>
+<p>If you wish, you can knit the chapter2.Rmd file as a html document
+anytime to see how it looks. But for submission, the output of your
+Analysis should appear in your course diary. For this you need to update
+your local index.html file by knitting the index.Rmd file (which
+includes chapter2.Rmd as a child file) and then push the changes to
+GitHub.</p>
+<p><strong><span style="color: red;">Write a continuous report with a
+clear structure.</span></strong> There is no need to repeat the
+assignments in your course diary. The focus of your work should be on
+the clarity of your report. For full points <strong>you should be able
+to show an understanding of the methods and results used in your
+analysis</strong>. Feel free to also use material outside this course as
+learning sources. Clear, understandable and comprehensive explanations
+are worth full points.</p>
+<p>R Markdown Hint: When you knit the document, the working directory is
+temporarily set to be the folder where your R Markdown file is located.
+This is good to be aware of when reading data for example.</p>
+<div id="read-and-describe-data" class="section level3">
+<h3>1. Read and describe data</h3>
+<p>Read the students2014 data into R either from your local folder (if
+you completed the Data wrangling part) or from this url: <a href="https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt" class="uri">https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt</a>
+. (The separator is a comma “,” and the file includes a header). Explore
+the structure and the dimensions of the data and describe the dataset
+briefly, assuming the reader has no previous knowledge of it. There is
+information related to the data here. (0-2 points)</p>
+</div>
+<div id="graphical-overview-and-summary" class="section level3">
+<h3>2. Graphical overview and summary</h3>
+<p>Show a graphical overview of the data and show summaries of the
+variables in the data. Describe and interpret the outputs, commenting on
+the distributions of the variables and the relationships between them.
+(0-3 points)</p>
+</div>
+<div id="regression-model-fitting" class="section level3">
+<h3>3. Regression model fitting</h3>
+<p>Choose three variables as explanatory variables and fit a regression
+model where exam points is the target (dependent, outcome) variable.
+Show a summary of the fitted model and comment and interpret the
+results. Explain and interpret the statistical test related to the model
+parameters. If an explanatory variable in your model does not have a
+statistically significant relationship with the target variable, remove
+the variable from the model and fit the model again without it. (0-4
+points)</p>
+</div>
+<div id="interpret-results" class="section level3">
+<h3>4. Interpret results</h3>
+<p>Using a summary of your fitted model, explain the relationship
+between the chosen explanatory variables and the target variable
+(interpret the model parameters). Explain and interpret the multiple
+R-squared of the model. (0-3 points)</p>
+</div>
+<div id="diagnostic-plots" class="section level3">
+<h3>5. Diagnostic plots</h3>
+<p>Produce the following diagnostic plots: Residuals vs Fitted values,
+Normal QQ-plot and Residuals vs Leverage. Explain the assumptions of the
+model and interpret the validity of those assumptions based on the
+diagnostic plots. (0-3 points)</p>
+</div>
+<div id="report-assignment-2" class="section level3">
+<h3>REPORT (Assignment 2)</h3>
+</div>
+<div id="resources" class="section level3">
+<h3>Resources</h3>
+<ul>
+<li><a href="https://argoshare.is.ed.ac.uk/healthyr_book/">R for Health
+Data Science</a></li>
+<li><a href="https://posit.co/resources/cheatsheets/?_page=2/">Cheatsheet for
+RMarkdown</a></li>
+</ul>
 </div>
 </div>
 </div>
