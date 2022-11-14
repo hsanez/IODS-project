@@ -89,11 +89,12 @@ The analysis data is a subset of a full data called 'learning2014'. The full dat
 
 The results are student's answers to questions on different subtopics of learning, and some of these subtopics are summarized as new variables in our analysis dataset. This subset we created and read, 'learning2014.csv', is an analysis dataset which contains 7 variables: gender, age, attitude, deep, stra, surf and points. Points means the maximum exam points of the student.
 
-Some of these variables were made by combining questions in the learning2014 data:
-- attitude = summary variable of questions about the student's attitude towards statistics
-- deep = deep approach = summary variable of questions to assess whether the student is using a deep approach to learning
-- stra = strategic approach = summary variable of questions to assess whether the student is using a strategic approach to learning
-- surf = surface approach = summary variable of questions to assess whether the student is using a surface approach to learning
+Some of these variables were made by combining questions in the learning2014 data
+
+ - attitude = summary variable of questions about the student's attitude towards statistics
+ - deep = deep approach = summary variable of questions to assess whether the student is using a deep approach to learning
+ - stra = strategic approach = summary variable of questions to assess whether the student is using a strategic approach to learning
+ - surf = surface approach = summary variable of questions to assess whether the student is using a surface approach to learning
 
 See the survey questions and combinations made for the above mentioned variables on [this page](https://www.mv.helsinki.fi/home/kvehkala/JYTmooc/JYTOPKYS2-meta.txt).
 
@@ -104,8 +105,8 @@ The remaining subset of data has 166 observations (students) and 7 variables.
 
 
 
-We will look at a graphical overview of our data.
-We are dealing with 7 variables. Gender seems to be a dichotomous variable without missing values, and more female than male students:
+We will look at a **graphical overview** of our data.
+We have 7 variables of which gender seems to be a dichotomous variable without missing values, and more female than male students:
 ```{r}
 summary(lrn14a$gender); unique(lrn14a$gender); table(lrn14a$gender)
 ```
@@ -122,26 +123,39 @@ p <- ggpairs(lrn14a, mapping = aes(col=lrn14a$gender, alpha=0.3), lower = list(c
 # draw the plot
 p
 ```
-In this plot matrix we can see all variables split by gender, boxplots on top, and on the far left histograms, then scatters and density plots, and finally Pearson correlation data with statistical significance marked with asterisks ([see GGally documentation](https://ggobi.github.io/ggally/reference/ggally_cor.html).
-
-As we can see, there are more female (red) than male (blue) students. Most students are under 30 years old, overall female students tend to be somewhat younger, the median age being lower. More male students have a more positive attitude towards studying and statistics.Both genders seem to have a high score on deep approach to studying but female students show a little bit more strategic and surface level approaches to studying than males.
-
-For Pearson correlation results we can see both an overall and gender specific correlation coefficients. It seems that attitude towards statistics and exam points are positively correlated on a statistically significant level (p<0.001): a higher summary score in attitude is associated with higher exam points regardless of gender.
-Logically, we see surface level and deep level approach to studying to be negatively correlated (p<0.001) among male students but interestingly not among females. There is also some signs of a negative correlation between attitude and surface level approach to studying among males.
 
 
+In this plot matrix we can see all variables split by gender, boxplots on top, and on the far left histograms, then scatters and density plots, and finally Pearson correlation data with statistical significance marked with asterisks ([see GGally documentation](https://ggobi.github.io/ggally/reference/ggally_cor.html)).
+
+As we can see, there are
+
+ * more female (red) than male (blue) students.
+ * Most students are under 30 years old, overall female students tend to be somewhat younger, the median age being lower. 
+ * More male students have a more positive attitude towards studying and statistics.
+ * Both genders seem to have a high score on deep approach to studying but female students show a little bit more strategic and surface level approaches to studying than males.
+ 
+
+For Pearson correlation results we can see both an overall and gender specific correlation coefficients.
+
+ * It seems that attitude towards statistics and exam points are positively correlated on a statistically significant level (p<0.001): a higher summary score in attitude is associated with higher exam points regardless of gender.
+ * Logically, we see surface level and deep level approach to studying to be negatively correlated (p<0.001) among male students but interestingly not among females.
+ * There is also some signs of a negative correlation between attitude and surface level approach to studying among males.
 
 
-We'll proceed to creating a regression model. As instructed let's choose three explanatory variables to our model where exam points is the dependent (outcome) variable. I'll base my choice on the correlation information above, and I'll try to avoid possible collinearity between the chosen variables. Since there are multiple explanatory (independent) variables, we'll use a multiple regression model approach.
+
+
+We'll proceed to **creating a regression model**. As instructed we'll choose three explanatory variables to our model where exam points is the dependent (outcome) variable. I'll base my choice on the correlation information above, and I'll try to avoid possible collinearity between the chosen variables. Since there are multiple explanatory (independent) variables, we'll use a multiple regression model approach.
 
 
 Dependent variable:
-- points
+
+ * points
 
 Independent variables:
-- attitude (statistically significant correlation with points)
-- stra (large correlation coefficient)
-- surf (large correlation coefficient)
+
+ * attitude (statistically significant correlation with points)
+ * stra (large correlation coefficient)
+ * surf (large correlation coefficient)
 
 
 ```{r, message=FALSE}
@@ -154,8 +168,10 @@ reg_model <- lm(points ~ attitude + stra + surf, data = lrn14a)
 summary(reg_model)
 
 ```
-From the summary of the model we can see that attitude is positively and statistically significantly (p=1.9E-8) associated with exam points. From the estimated we can assume that a rise of 1 point in the mean of attitude points (as in a summary variable of attitude driven questions) means an approximate rise of 3.4 exam points when the other explanatory variables remain unchanged.
-Strategic or surface approach to studying seem to not be associated with exam points.
+From the summary of the model we can see that
+
+ * attitude is positively and statistically significantly (p=1.9E-8) associated with exam points. From the estimated we can assume that a rise of 1 point in the mean of attitude points (as in a summary variable of attitude driven questions) means an approximate rise of 3.4 exam points when the other explanatory variables remain unchanged.
+ * Strategic or surface approach to studying seem to not be associated with exam points.
 
 The t values are t statistics that have been calculated as estimate/standard error.
 
@@ -163,7 +179,7 @@ The F-statistic has a very low p-value, meaning that there is evidence that at l
 
 R-squared tells us about the fit of the model to our data. Here, since we have used multiple explanatory variables, we'll look at the adjusted R-squared which takes into account and corrects for the variance caused by the multiple variables used in a regression model. Here we see an adjusted R-square of 0.19, meaning that the three chosen explanatory variables account for approx. 20% of the variation in exam points.
 
-Since only attitude seems to be statistically significantly associated with the dependent variable, we'll run the regression model again, oly with attitude as an explanatory variable, to fit the model better and get a more [parsimonious](https://www.statology.org/parsimonious-model/) model. We'll also draw a scatter plot with a regression line to visualize the result. 
+Since only attitude seems to be statistically significantly associated with the dependent variable, we'll run the regression model again, only with attitude as an explanatory variable, to fit the model better and get a more [parsimonious](https://www.statology.org/parsimonious-model/) model. We'll also draw a scatter plot with a regression line to visualize the result. 
 
 ```{r, message=FALSE}
 # a scatter plot of points versus attitude
@@ -185,9 +201,10 @@ Again, we see that attitude is statistically significantly associated with point
 We have fitted a regression model to our data and interpreted the results. Now we will assess the model to check whether it complies to our statistic assumptions, and that it is a sensible model to use on our data.
 
 Graphical model validation with plot():
-- Residuals vs Fitted values (1)
-- Normal QQ-plot (2)
-- Residuals vs Leverage (5)
+
+ * Residuals vs Fitted values (1)
+ * Normal QQ-plot (2)
+ * Residuals vs Leverage (5)
 
 ```{r, message=FALSE}
 # show plots in a matrix
@@ -198,14 +215,15 @@ plot(reg_model2, which=c(1,2,5))
 ```
 
 Linear regression modeling has four main assumptions (quoted from [R for Health Data Science](https://argoshare.is.ed.ac.uk/healthyr_book/)):
-1. Linear relationship between predictors and outcome
-2. Independence of residuals
-3. Normal distribution of residuals
-4. Equal variance of residuals
 
-In plot 'Residuals vs Fitted' values we see that the variance of the residuals (outcome variable = points) seem to stay equal (assumption 4 &check;).
-In the Normal QQ plot we see quite normally distributed residuals, some residual data points curving from the normal line in both ends of the plot line, which means that there are some extreme values in the data but the distributions seems normal (assumption 3 &check;)
-From the plot 'Residuals vs Leverage' we can estimate whether there are observations that affect the model significantly more than others (outliers). As from the QQ plot we see that there are some extreme values but none of them cross the [Cook's distance](https://www.statology.org/residuals-vs-leverage-plot/) treshold so we can determine that there are no outliers affecting the our model.
+ 1. Linear relationship between predictors and outcome
+ 2. Independence of residuals
+ 3. Normal distribution of residuals
+ 4. Equal variance of residuals
+
+ * In plot 'Residuals vs Fitted' values we see that the variance of the residuals (outcome variable = points) seem to stay equal (assumption 4 &check;).
+ * In the Normal QQ plot we see quite normally distributed residuals, some residual data points curving from the normal line in both ends of the plot line, which means that there are some extreme values in the data but the distributions seems normal (assumption 3 &check;)
+ * From the plot 'Residuals vs Leverage' we can estimate whether there are observations that affect the model significantly more than others (outliers). As from the QQ plot we see that there are some extreme values but none of them cross the [Cook's distance](https://www.statology.org/residuals-vs-leverage-plot/) treshold so we can determine that there are no outliers affecting the our model.
 
 
 
@@ -241,6 +259,11 @@ Using a summary of your fitted model, explain the relationship between the chose
 &check; Done!
 
 
+
+### 5. Diagnostic plots
+Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage. Explain the assumptions of the model and interpret the validity of those assumptions based on the diagnostic plots. (0-3 points)
+
+
 which | graphic                                 
 ----- | --------
 1     | Residuals vs Fitted values 
@@ -251,12 +274,7 @@ which | graphic
 6     | Cook's distance vs Leverage 
 
 
-
-
-
-### 5. Diagnostic plots
-Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage. Explain the assumptions of the model and interpret the validity of those assumptions based on the diagnostic plots. (0-3 points)
-
+&check; Done!
 
 
 
