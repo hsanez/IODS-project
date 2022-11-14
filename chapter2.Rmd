@@ -1,12 +1,12 @@
 # Ch2 Regression and model validation
 
-'''
+
 *Describe the work you have done this week and summarize your learning.*
 
 - Describe your work and results clearly. 
 - Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
 - Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
-'''
+
 
 ```{r}
 date()
@@ -17,12 +17,11 @@ Here we go again...
 ## Libraries used for Ch2
 
 Load the needed R packages before getting to work:
-Obs! You might need to install the packages first if you haven't used them before (install.packages()).
-```{r}
+Obs! You might need to install the packages first if you haven't used them before (see install.packages()).
+```{r, message=FALSE}
 #install.packages(c("tidyverse","GGally","readr"))
 library(tidyverse)
 library(GGally)
-library(readr)
 ```
 
 
@@ -33,70 +32,230 @@ I created a new data folder in my IODS-project folder. It includes an R script n
 The original data I'm using is the full learning2014 data downloaded from [here](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt). The data includes headers and uses tab as a separator.
 As per the course assignment instructions I have commented the data and my code in 'create_learning2014.R'.
 
-Done! :heavy_check_mark:
+&check; Done!
 
 
 ### 2. Create an analysis dataset (1p.)
-In this part we created an analysis dataset which contains 7 variables: gender, age, attitude, deep, stra, surf and points. Some of these (attitude, deep, stra, surf, points) were made by combining questions in the learning2014 data, as defined in our Exercise Set and also on the bottom part of the [this page](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt). The combination variables were scaled and observations where points = 0 were excluded. The data has now 166 observations and 7 variables. See my full comments and code in 'create_learning2014.R'.
+In this part we created an analysis dataset which contains 7 variables: gender, age, attitude, deep, stra, surf and points. Some of these (attitude, deep, stra, surf, points) were made by combining questions in the learning2014 data, as defined in our Exercise Set and also on the bottom part of [this page](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt). The combination variables were scaled and observations where points = 0 were excluded. The data has now 166 observations and 7 variables. See my full comments and code in 'create_learning2014.R'.
 
-Done! :heavy_check_mark:
+&check; Done!
 
 
-### 3. [ ] Save new data set (3p.)
-Set the working directory of your R session to the IODS Project folder (study how to do this with RStudio). Save the analysis dataset to the ‘data’ folder, using for example write_csv() function (readr package, part of tidyverse). You can name the data set for example as learning2014.csv. See ?write_csv for help or search the web for pointers and examples. Demonstrate that you can also read the data again by using read_csv().  (Use `str()` and `head()` to make sure that the structure of the data is correct).  (3 points)
+### 3. Save new data set (3p.)
+I set the working directory of my R session to the IODS Project folder with setwd() and then saved the analysis dataset to the data folder as learning.csv with write_csv() (readr package, part of tidyverse). ?write_csv was a good help. With read_csv(), str(), dim() and head() I made sure the data was correctly written.  Again, see my full comments and code in 'create_learning2014.R'.(3 points)
+
+&check; Done!
 
 
 
 ## Analysis
 
-The Analysis exercise focuses on performing and interpreting regression analysis. For completing the Analysis exercises, **<span style="color: red;">include all the codes, your interpretations and explanations in the R Markdown file chapter2.Rmd</span>**, which already exists in your course project folder. 
-
-If you wish, you can knit the chapter2.Rmd file as a html document anytime to see how it looks. But for submission, the output of your Analysis should appear in your course diary. For this you need to update your local index.html file by knitting the index.Rmd file (which includes chapter2.Rmd as a child file) and then push the changes to GitHub.
-
-**<span style="color: red;">Write a continuous report with a clear structure.</span>** There is no need to repeat the assignments in your course diary. The focus of your work should be on the clarity of your report. For full points **you should be able to show an understanding of the methods and results used in your analysis**. Feel free to also use material outside this course as learning sources. Clear, understandable and comprehensive explanations are worth full points.
+- The Analysis exercise focuses on performing and interpreting regression analysis.
+- **<span style="color: red;">include all the codes, your interpretations and explanations in the R Markdown file chapter2.Rmd</span>**
+- the output of your Analysis should appear in your course diary (update your local index.html file by knitting the index.Rmd file (which includes chapter2.Rmd as a child file) and then push the changes to GitHub).
+- **<span style="color: red;">Write a continuous report with a clear structure.</span>**
+- For full points **you should be able to show an understanding of the methods and results used in your analysis**. Clear, understandable and comprehensive explanations are worth full points.
+-Feel free to also use material outside this course as learning sources. 
 
 R Markdown Hint: When you knit the document, the working directory is temporarily set to be the folder where your R Markdown file is located. This is good to be aware of when reading data for example.
 
 
+### REPORT (Assignment 2)
 
-### 1. Read and describe data
-Read the students2014 data into R either from your local folder (if you completed the Data wrangling part) or from this url: https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt . (The separator is a comma "," and the file includes a header). Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. There is information related to the data [here](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-meta.txt). (0-2 points)
+First we start by reading the analysis data to R. Make sure all required packages are installed (see beginning of Ch2).
+The data we're using is the one created in the data wrangling part of assignment 2. The data can be also read directly from [this page](https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt), where the separator is a comma and headers are included.
+
+```{r, message=FALSE}
+#load required packages
+library(tidyverse)
+library(GGally)
+```
+
+```{r, message=FALSE}
+# Read data (Make sure you're in the correct working folder with getwd())
+lrn14a <- read_csv("data/learning2014.csv")
+# Alternative site for reading the data
+#lrn14a <- read_csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt")
+```
 
 ```{r}
-library(readr)
-# Read data
-#lrn14a <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt", sep=",", header=TRUE)
-lrn14a <- read_csv("data/learning2014.csv")
 #Structure of the data
 str(lrn14a)
-# Dimensions and peek at the data
+# Dimensions and first peek at the data
 dim(lrn14a);head(lrn14a)
+```
 
+The analysis data is a subset of a full data called 'learning2014'. The full data is the result of a survey on attitude towards studying and statistics made between 3.12.2014 - 1.10.2015 for students of an introductory course to social statistics.
+
+The results are student's answers to questions on different subtopics of learning, and some of these subtopics are summarized as new variables in our analysis dataset. This subset we created and read, 'learning2014.csv', is an analysis dataset which contains 7 variables: gender, age, attitude, deep, stra, surf and points. Points means the maximum exam points of the student.
+
+Some of these variables were made by combining questions in the learning2014 data:
+- attitude = summary variable of questions about the student's attitude towards statistics
+- deep = deep approach = summary variable of questions to assess whether the student is using a deep approach to learning
+- stra = strategic approach = summary variable of questions to assess whether the student is using a strategic approach to learning
+- surf = surface approach = summary variable of questions to assess whether the student is using a surface approach to learning
+
+See the survey questions and combinations made for the above mentioned variables on [this page](https://www.mv.helsinki.fi/home/kvehkala/JYTmooc/JYTOPKYS2-meta.txt).
+
+The summary variables were scaled to a Likert scale (scale from 1 to 5) and observations (students) with 0 exam points were excluded. 
+
+The remaining subset of data has 166 observations (students) and 7 variables.
+
+
+
+
+We will look at a graphical overview of our data.
+We are dealing with 7 variables. Gender seems to be a dichotomous variable without missing values, and more female than male students:
+```{r}
+summary(lrn14a$gender); unique(lrn14a$gender); table(lrn14a$gender)
+```
+
+We'll use this information to split our graphical output in two (male and female students) and draw summary plots of the remaining variables:
+```{r, message=FALSE}
+# access the GGally and ggplot2 libraries
+library(GGally)
+library(ggplot2)
+
+# create a more advanced plot matrix with ggpairs()
+p <- ggpairs(lrn14a, mapping = aes(col=lrn14a$gender, alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
+
+# draw the plot
+p
+```
+In this plot matrix we can see all variables split by gender, boxplots on top, and on the far left histograms, then scatters and density plots, and finally Pearson correlation data with statistical significance marked with asterisks ([see GGally documentation](https://ggobi.github.io/ggally/reference/ggally_cor.html).
+
+As we can see, there are more female (red) than male (blue) students. Most students are under 30 years old, overall female students tend to be somewhat younger, the median age being lower. More male students have a more positive attitude towards studying and statistics.Both genders seem to have a high score on deep approach to studying but female students show a little bit more strategic and surface level approaches to studying than males.
+
+For Pearson correlation results we can see both an overall and gender specific correlation coefficients. It seems that attitude towards statistics and exam points are positively correlated on a statistically significant level (p<0.001): a higher summary score in attitude is associated with higher exam points regardless of gender.
+Logically, we see surface level and deep level approach to studying to be negatively correlated (p<0.001) among male students but interestingly not among females. There is also some signs of a negative correlation between attitude and surface level approach to studying among males.
+
+
+
+
+We'll proceed to creating a regression model. As instructed let's choose three explanatory variables to our model where exam points is the dependent (outcome) variable. I'll base my choice on the correlation information above, and I'll try to avoid possible collinearity between the chosen variables. Since there are multiple explanatory (independent) variables, we'll use a multiple regression model approach.
+
+
+Dependent variable:
+- points
+
+Independent variables:
+- attitude (statistically significant correlation with points)
+- stra (large correlation coefficient)
+- surf (large correlation coefficient)
+
+
+```{r, message=FALSE}
+library(ggplot2)
+p <- ggpairs(lrn14a, mapping = aes(col=lrn14a$gender, alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
+# create a regression model with multiple explanatory variables
+reg_model <- lm(points ~ attitude + stra + surf, data = lrn14a)
+
+# print out a summary of the model
+summary(reg_model)
+
+```
+From the summary of the model we can see that attitude is positively and statistically significantly (p=1.9E-8) associated with exam points. From the estimated we can assume that a rise of 1 point in the mean of attitude points (as in a summary variable of attitude driven questions) means an approximate rise of 3.4 exam points when the other explanatory variables remain unchanged.
+Strategic or surface approach to studying seem to not be associated with exam points.
+
+The t values are t statistics that have been calculated as estimate/standard error.
+
+The F-statistic has a very low p-value, meaning that there is evidence that at least not all of the coefficients of the studied explanatory variables are zero.
+
+R-squared tells us about the fit of the model to our data. Here, since we have used multiple explanatory variables, we'll look at the adjusted R-squared which takes into account and corrects for the variance caused by the multiple variables used in a regression model. Here we see an adjusted R-square of 0.19, meaning that the three chosen explanatory variables account for approx. 20% of the variation in exam points.
+
+Since only attitude seems to be statistically significantly associated with the dependent variable, we'll run the regression model again, oly with attitude as an explanatory variable, to fit the model better and get a more [parsimonious](https://www.statology.org/parsimonious-model/) model. We'll also draw a scatter plot with a regression line to visualize the result. 
+
+```{r, message=FALSE}
+# a scatter plot of points versus attitude
+library(ggplot2)
+qplot(attitude, points, data = lrn14a) + geom_smooth(method = "lm")
+
+# create a regression model with multiple explanatory variables
+reg_model2 <- lm(points ~ attitude, data = lrn14a)
+
+# print out a summary of the model
+summary(reg_model2)
 
 ```
 
-https://r4ds.had.co.nz/data-import.html
-https://github.com/tidyverse/readr/issues/934
+The regression line fits the scatter plot quite nicely, with a positive slope and tight 95% confidence intervals.
+Again, we see that attitude is statistically significantly associated with points (p=4.1E-9), and the amount of points rise by 1 when attitude points based on the original survey rise by approx 3.5. The estimate is a little bit higher and the p-value a little bit lower than before. Since we have only one explanatory variable we can assess the multiple R squared of the model (0.19), which should now equal to the square of the correlation coefficient between attitude and points. This means that almost 20% of points can be explained by attitude.
+
+
+We have fitted a regression model to our data and interpreted the results. Now we will assess the model to check whether it complies to our statistic assumptions, and that it is a sensible model to use on our data.
+
+Graphical model validation with plot():
+- Residuals vs Fitted values (1)
+- Normal QQ-plot (2)
+- Residuals vs Leverage (5)
+
+```{r, message=FALSE}
+# show plots in a matrix
+par(mfrow = c(2,2))
+# draw diagnostic plots using the plot() function.
+plot(reg_model2, which=c(1,2,5))
+
+```
+
+Linear regression modeling has four main assumptions (quoted from [R for Health Data Science](https://argoshare.is.ed.ac.uk/healthyr_book/)):
+1. Linear relationship between predictors and outcome
+2. Independence of residuals
+3. Normal distribution of residuals
+4. Equal variance of residuals
+
+In plot 'Residuals vs Fitted' values we see that the variance of the residuals (outcome variable = points) seem to stay equal (assumption 4 &check;).
+In the Normal QQ plot we see quite normally distributed residuals, some residual data points curving from the normal line in both ends of the plot line, which means that there are some extreme values in the data but the distributions seems normal (assumption 3 &check;)
+From the plot 'Residuals vs Leverage' we can estimate whether there are observations that affect the model significantly more than others (outliers). As from the QQ plot we see that there are some extreme values but none of them cross the [Cook's distance](https://www.statology.org/residuals-vs-leverage-plot/) treshold so we can determine that there are no outliers affecting the our model.
+
+
+
+
+
+
+
+### 1. Read and describe data
+&check; Done!
+
 
 ### 2. Graphical overview and summary
 Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-3 points)
+
+```{r, message=FALSE}
+# This would have been a simpler version of a a scatter plot matrix of the variables.
+# [-1] excludes the first column (here gender), since we'll take it into account in the coloring of the figures.
+#pairs(lrn14a[-1])
+```
+
+&check; Done!
 
 
 ### 3. Regression model fitting
 Choose three variables as explanatory variables and fit a regression model where exam points is the target (dependent, outcome) variable. Show a summary of the fitted model and comment and interpret the results. Explain and interpret the statistical test related to the model parameters. If an explanatory variable in your model does not have a statistically significant relationship with the target variable, remove the variable from the model and fit the model again without it. (0-4 points)
 
+&check; Done!
+
 
 ### 4. Interpret results
 Using a summary of your fitted model, explain the relationship between the chosen explanatory variables and the target variable (interpret the model parameters). Explain and interpret the multiple R-squared of the model. (0-3 points)
 
+&check; Done!
+
+
+which | graphic                                 
+----- | --------
+1     | Residuals vs Fitted values 
+2     | Normal QQ-plot
+3     | Standardized residuals vs Fitted values
+4     | Cook's distances
+5     | Residuals vs Leverage 
+6     | Cook's distance vs Leverage 
+
+
+
+
 
 ### 5. Diagnostic plots
 Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage. Explain the assumptions of the model and interpret the validity of those assumptions based on the diagnostic plots. (0-3 points)
-
-
-### REPORT (Assignment 2)
-
-
 
 
 
@@ -104,3 +263,8 @@ Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-pl
 ### Resources
 * [R for Health Data Science](https://argoshare.is.ed.ac.uk/healthyr_book/)
 * [Cheatsheet for RMarkdown and ggplot2](https://posit.co/resources/cheatsheets/?_page=2/)
+* [GGally documentation](https://ggobi.github.io/ggally/index.html)
+* [About parsimonious models](https://www.statology.org/parsimonious-model/)
+
+
+
