@@ -5,7 +5,8 @@ output:
   html_document:
     theme: cosmo
     toc: true
-    toc_depth: 2
+    #toc_depth: 2
+    toc_depth: 3 #HS
     toc_float: true #HS
     fig_caption: true
     fig_width: 6
@@ -16,15 +17,15 @@ output:
 
 # Introduction to Open Data Science - Course Project
 
-| Chapter | Topic | Book Ch (K.V)| Book Ch R for HDS | Assignment done? |
-|:-------:|:------------:|:------:|:------:|:------:|
-| 1 | Start me up! | 1 & 2  | - | [x]  |
-| 2 | Regression and model validation | 3 & 4 |  7 ||
-| 3 | Logistic regression |  |  ||
-| 4 | Clustering and classification ||||
-| 5 | Dimentionality reduction techniques ||||
-| 6 | Analysis of longitudinal data ||||
-| Misc | Misc ||||
+| Chapter | Topic | Max points | Book Ch (K.V)| Book Ch R for HDS | Assignment done? |
+|:-------:|:------------:|:------:|:------:|:------:|:------:|
+| 1 | Start me up! | 20 |1 & 2  | - |&cross;|
+| 2 | Regression and model validation |5+15| 3 & 4 |  7 ||
+| 3 | Logistic regression |  |  |||
+| 4 | Clustering and classification |||||
+| 5 | Dimensionality reduction techniques |||||
+| 6 | Analysis of longitudinal data |||||
+| Misc | Misc |||||
 
 
 ```{r child = "chapter1.Rmd"}

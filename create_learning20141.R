@@ -146,8 +146,10 @@ getwd()
 library(readr)
 write_csv(learning2014, file="/home/ad/lxhome/h/heisanez/Linux/R_projects/IODS-project/data/learning2014.csv")
 
+
 # Read saved data as a tibble
 lrnv2 <- read_csv("/home/ad/lxhome/h/heisanez/Linux/R_projects/IODS-project/data/learning2014.csv")
+
 str(lrnv2)
 head(lrnv2)
 

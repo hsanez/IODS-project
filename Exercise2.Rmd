@@ -399,10 +399,11 @@ p2
 p3 <- p2 + geom_smooth(method = "lm")
 
 # add a main title
-p4 <- "change me!"
+#p4 <- "change me!"
+p4 <- p3 + labs(title="Attitude vs Points")
 
 # draw the plot!
-
+p4
 
 ```
 

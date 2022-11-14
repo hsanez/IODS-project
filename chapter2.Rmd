@@ -1,10 +1,12 @@
 # Ch2 Regression and model validation
 
+'''
 *Describe the work you have done this week and summarize your learning.*
 
 - Describe your work and results clearly. 
 - Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
 - Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+'''
 
 ```{r}
 date()
@@ -12,16 +14,33 @@ date()
 
 Here we go again...
 
+## Libraries used for Ch2
+
+Load the needed R packages before getting to work:
+Obs! You might need to install the packages first if you haven't used them before (install.packages()).
+```{r}
+#install.packages(c("tidyverse","GGally","readr"))
+library(tidyverse)
+library(GGally)
+library(readr)
+```
+
+
 ## Data wrangling
 
-### 1. Read data (1p.) :heavy_check_mark:
-Create a folder named ‘data’ in your IODS-project folder. Then create a new R script with RStudio. Write your name, date and a one sentence file description as a comment on the top of the script file. Save the script for example as 'create_learning2014.R' in the ‘data’ folder. Complete the rest of the steps in that script.
+### 1. Read data (1p.)
+I created a new data folder in my IODS-project folder. It includes an R script named 'create_learning2014.R', which is the R code for this data wrangling part of Assignment 2.
+The original data I'm using is the full learning2014 data downloaded from [here](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt). The data includes headers and uses tab as a separator.
+As per the course assignment instructions I have commented the data and my code in 'create_learning2014.R'.
 
-Read the full learning2014 data from http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt into R (the separator is a tab ("\t") and the file includes a header) and explore the structure and dimensions of the data. Write short code comments describing the output of these explorations. (1 point)
+Done! :heavy_check_mark:
 
 
-### 2. [ ] Create an analysis dataset (1p.)
-Create an analysis dataset with the variables gender, age, attitude, deep, stra, surf and points by combining questions in the learning2014 data, as defined in the Exercise Set and also on the bottom part of the following page (only the top part of the page is in Finnish). http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt. Scale all combination variables to the original scales (by taking the mean). Exclude observations where the exam points variable is zero. (The data should then have 166 observations and 7 variables) (1 point)
+### 2. Create an analysis dataset (1p.)
+In this part we created an analysis dataset which contains 7 variables: gender, age, attitude, deep, stra, surf and points. Some of these (attitude, deep, stra, surf, points) were made by combining questions in the learning2014 data, as defined in our Exercise Set and also on the bottom part of the [this page](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt). The combination variables were scaled and observations where points = 0 were excluded. The data has now 166 observations and 7 variables. See my full comments and code in 'create_learning2014.R'.
+
+Done! :heavy_check_mark:
+
 
 ### 3. [ ] Save new data set (3p.)
 Set the working directory of your R session to the IODS Project folder (study how to do this with RStudio). Save the analysis dataset to the ‘data’ folder, using for example write_csv() function (readr package, part of tidyverse). You can name the data set for example as learning2014.csv. See ?write_csv for help or search the web for pointers and examples. Demonstrate that you can also read the data again by using read_csv().  (Use `str()` and `head()` to make sure that the structure of the data is correct).  (3 points)
@@ -39,9 +58,25 @@ If you wish, you can knit the chapter2.Rmd file as a html document anytime to se
 R Markdown Hint: When you knit the document, the working directory is temporarily set to be the folder where your R Markdown file is located. This is good to be aware of when reading data for example.
 
 
+
 ### 1. Read and describe data
 Read the students2014 data into R either from your local folder (if you completed the Data wrangling part) or from this url: https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt . (The separator is a comma "," and the file includes a header). Explore the structure and the dimensions of the data and describe the dataset briefly, assuming the reader has no previous knowledge of it. There is information related to the data [here](http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-meta.txt). (0-2 points)
 
+```{r}
+library(readr)
+# Read data
+#lrn14a <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt", sep=",", header=TRUE)
+lrn14a <- read_csv("data/learning2014.csv")
+#Structure of the data
+str(lrn14a)
+# Dimensions and peek at the data
+dim(lrn14a);head(lrn14a)
+
+
+```
+
+https://r4ds.had.co.nz/data-import.html
+https://github.com/tidyverse/readr/issues/934
 
 ### 2. Graphical overview and summary
 Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-3 points)
@@ -66,7 +101,6 @@ Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-pl
 
 
 
-
 ### Resources
 * [R for Health Data Science](https://argoshare.is.ed.ac.uk/healthyr_book/)
-* [Cheatsheet for RMarkdown](https://posit.co/resources/cheatsheets/?_page=2/)
+* [Cheatsheet for RMarkdown and ggplot2](https://posit.co/resources/cheatsheets/?_page=2/)

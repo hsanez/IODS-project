@@ -354,41 +354,63 @@ display: none;
 
 <div id="ch2-regression-and-model-validation" class="section level1">
 <h1>Ch2 Regression and model validation</h1>
-<p><em>Describe the work you have done this week and summarize your
+<p>’’’ <em>Describe the work you have done this week and summarize your
 learning.</em></p>
 <ul>
 <li>Describe your work and results clearly.</li>
 <li>Assume the reader has an introductory course level understanding of
 writing and reading R code as well as statistical methods.</li>
 <li>Assume the reader has no previous knowledge of your data or the more
-advanced methods you are using.</li>
+advanced methods you are using. ’’’</li>
 </ul>
 <pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Fri Nov 11 16:00:37 2022&quot;</code></pre>
+<pre><code>## [1] &quot;Mon Nov 14 11:10:47 2022&quot;</code></pre>
 <p>Here we go again…</p>
+<div id="libraries-used-for-ch2" class="section level2">
+<h2>Libraries used for Ch2</h2>
+<p>Load the needed R packages before getting to work: Obs! You might
+need to install the packages first if you haven’t used them before
+(install.packages()).</p>
+<pre class="r"><code>#install.packages(c(&quot;tidyverse&quot;,&quot;GGally&quot;,&quot;readr&quot;))
+library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+## ✔ ggplot2 3.3.6      ✔ purrr   0.3.5 
+## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
+## ✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+## ✔ readr   2.1.3      ✔ forcats 0.5.2 
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(GGally)</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;GGally&#39;:
+##   method from   
+##   +.gg   ggplot2</code></pre>
+<pre class="r"><code>library(readr)</code></pre>
+</div>
 <div id="data-wrangling" class="section level2">
 <h2>Data wrangling</h2>
-<div id="read-data-1p.-heavy_check_mark" class="section level3">
-<h3>1. Read data (1p.) :heavy_check_mark:</h3>
-<p>Create a folder named ‘data’ in your IODS-project folder. Then create
-a new R script with RStudio. Write your name, date and a one sentence
-file description as a comment on the top of the script file. Save the
-script for example as ‘create_learning2014.R’ in the ‘data’ folder.
-Complete the rest of the steps in that script.</p>
-<p>Read the full learning2014 data from <a href="http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt" class="uri">http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt</a>
-into R (the separator is a tab (“) and the file includes a header) and
-explore the structure and dimensions of the data. Write short code
-comments describing the output of these explorations. (1 point)</p>
+<div id="read-data-1p." class="section level3">
+<h3>1. Read data (1p.)</h3>
+<p>I created a new data folder in my IODS-project folder. It includes an
+R script named ‘create_learning2014.R’, which is the R code for this
+data wrangling part of Assignment 2. The original data I’m using is the
+full learning2014 data downloaded from <a href="http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-data.txt">here</a>.
+The data includes headers and uses tab as a separator. As per the course
+assignment instructions I have commented the data and my code in
+‘create_learning2014.R’.</p>
+<p>Done! :heavy_check_mark:</p>
 </div>
 <div id="create-an-analysis-dataset-1p." class="section level3">
-<h3>2. [ ] Create an analysis dataset (1p.)</h3>
-<p>Create an analysis dataset with the variables gender, age, attitude,
-deep, stra, surf and points by combining questions in the learning2014
-data, as defined in the Exercise Set and also on the bottom part of the
-following page (only the top part of the page is in Finnish). <a href="http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt" class="uri">http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt</a>.
-Scale all combination variables to the original scales (by taking the
-mean). Exclude observations where the exam points variable is zero. (The
-data should then have 166 observations and 7 variables) (1 point)</p>
+<h3>2. Create an analysis dataset (1p.)</h3>
+<p>In this part we created an analysis dataset which contains 7
+variables: gender, age, attitude, deep, stra, surf and points. Some of
+these (attitude, deep, stra, surf, points) were made by combining
+questions in the learning2014 data, as defined in our Exercise Set and
+also on the bottom part of the <a href="http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt">this
+page</a>. The combination variables were scaled and observations where
+points = 0 were excluded. The data has now 166 observations and 7
+variables. See my full comments and code in ‘create_learning2014.R’.</p>
+<p>Done! :heavy_check_mark:</p>
 </div>
 <div id="save-new-data-set-3p." class="section level3">
 <h3>3. [ ] Save new data set (3p.)</h3>
@@ -434,7 +456,54 @@ you completed the Data wrangling part) or from this url: <a href="https://raw.gi
 . (The separator is a comma “,” and the file includes a header). Explore
 the structure and the dimensions of the data and describe the dataset
 briefly, assuming the reader has no previous knowledge of it. There is
-information related to the data here. (0-2 points)</p>
+information related to the data <a href="http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS3-meta.txt">here</a>.
+(0-2 points)</p>
+<pre class="r"><code>library(readr)
+# Read data
+#lrn14a &lt;- read.table(&quot;https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt&quot;, sep=&quot;,&quot;, header=TRUE)
+lrn14a &lt;- read_csv(&quot;data/learning2014.csv&quot;)</code></pre>
+<pre><code>## Rows: 166 Columns: 7
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (1): gender
+## dbl (6): age, attitude, deep, stra, surf, points
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>#Structure of the data
+str(lrn14a)</code></pre>
+<pre><code>## spc_tbl_ [166 × 7] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+##  $ gender  : chr [1:166] &quot;F&quot; &quot;M&quot; &quot;F&quot; &quot;M&quot; ...
+##  $ age     : num [1:166] 53 55 49 53 49 38 50 37 37 42 ...
+##  $ attitude: num [1:166] 3.7 3.1 2.5 3.5 3.7 3.8 3.5 2.9 3.8 2.1 ...
+##  $ deep    : num [1:166] 3.58 2.92 3.5 3.5 3.67 ...
+##  $ stra    : num [1:166] 3.38 2.75 3.62 3.12 3.62 ...
+##  $ surf    : num [1:166] 2.58 3.17 2.25 2.25 2.83 ...
+##  $ points  : num [1:166] 25 12 24 10 22 21 21 31 24 26 ...
+##  - attr(*, &quot;spec&quot;)=
+##   .. cols(
+##   ..   gender = col_character(),
+##   ..   age = col_double(),
+##   ..   attitude = col_double(),
+##   ..   deep = col_double(),
+##   ..   stra = col_double(),
+##   ..   surf = col_double(),
+##   ..   points = col_double()
+##   .. )
+##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
+<pre class="r"><code># Dimensions and peek at the data
+dim(lrn14a);head(lrn14a)</code></pre>
+<pre><code>## [1] 166   7</code></pre>
+<pre><code>## # A tibble: 6 × 7
+##   gender   age attitude  deep  stra  surf points
+##   &lt;chr&gt;  &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+## 1 F         53      3.7  3.58  3.38  2.58     25
+## 2 M         55      3.1  2.92  2.75  3.17     12
+## 3 F         49      2.5  3.5   3.62  2.25     24
+## 4 M         53      3.5  3.5   3.12  2.25     10
+## 5 M         49      3.7  3.67  3.62  2.83     22
+## 6 F         38      3.8  4.75  3.62  2.42     21</code></pre>
+<p><a href="https://r4ds.had.co.nz/data-import.html" class="uri">https://r4ds.had.co.nz/data-import.html</a> <a href="https://github.com/tidyverse/readr/issues/934" class="uri">https://github.com/tidyverse/readr/issues/934</a></p>
 </div>
 <div id="graphical-overview-and-summary" class="section level3">
 <h3>2. Graphical overview and summary</h3>
@@ -477,7 +546,7 @@ diagnostic plots. (0-3 points)</p>
 <li><a href="https://argoshare.is.ed.ac.uk/healthyr_book/">R for Health
 Data Science</a></li>
 <li><a href="https://posit.co/resources/cheatsheets/?_page=2/">Cheatsheet for
-RMarkdown</a></li>
+RMarkdown and ggplot2</a></li>
 </ul>
 </div>
 </div>
