@@ -17,9 +17,9 @@ output:
 
 # Introduction to Open Data Science - Course Project
 
-| Chapter | Topic | Max points | Book Ch (K.V)| Book Ch R for HDS | Assignment done? |
+| Chapter | Topic | Max points | Book Ch (K.V.)| Book Ch R for HDS | Assignment done? |
 |:-------:|:------------:|:------:|:------:|:------:|:------:|
-| 1 | Start me up! | 20 |1 & 2  | - |&cross;|
+| 1 | Start me up! | 20 |1 & 2| - |&cross;|
 | 2 | Regression and model validation |5+15| 3 & 4 | 7 |&cross;|
 | 3 | Logistic regression |  |  |||
 | 4 | Clustering and classification |||||

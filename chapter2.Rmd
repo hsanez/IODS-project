@@ -62,6 +62,8 @@ R Markdown Hint: When you knit the document, the working directory is temporaril
 
 ### REPORT (Assignment 2)
 
+### 1. Read and describe data (3p.)
+
 First we start by reading the analysis data to R. Make sure all required packages are installed (see beginning of Ch2).
 The data we're using is the one created in the data wrangling part of assignment 2. The data can be also read directly from [this page](https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/learning2014.txt), where the separator is a comma and headers are included.
 
@@ -104,6 +106,7 @@ The remaining subset of data has 166 observations (students) and 7 variables.
 
 
 
+### 2. Graphical overview and summary (3p.)
 
 We will look at a **graphical overview** of our data.
 We have 7 variables of which gender seems to be a dichotomous variable without missing values, and more female than male students:
@@ -143,6 +146,7 @@ For Pearson correlation results we can see both an overall and gender specific c
 
 
 
+### 3. Regression model fitting (4p.)
 
 We'll proceed to **creating a regression model**. As instructed we'll choose three explanatory variables to our model where exam points is the dependent (outcome) variable. I'll base my choice on the correlation information above, and I'll try to avoid possible collinearity between the chosen variables. Since there are multiple explanatory (independent) variables, we'll use a multiple regression model approach.
 
@@ -179,7 +183,21 @@ The F-statistic has a very low p-value, meaning that there is evidence that at l
 
 R-squared tells us about the fit of the model to our data. Here, since we have used multiple explanatory variables, we'll look at the adjusted R-squared which takes into account and corrects for the variance caused by the multiple variables used in a regression model. Here we see an adjusted R-square of 0.19, meaning that the three chosen explanatory variables account for approx. 20% of the variation in exam points.
 
-Since only attitude seems to be statistically significantly associated with the dependent variable, we'll run the regression model again, only with attitude as an explanatory variable, to fit the model better and get a more [parsimonious](https://www.statology.org/parsimonious-model/) model. We'll also draw a scatter plot with a regression line to visualize the result. 
+Since only attitude seems to be statistically significantly associated with the dependent variable, we'll rerun the regression model. We'll keep attitude as an explanatory variable and instead of surf and stra, we'll test age and gender as explanatory variables.
+
+```{r, message=FALSE}
+
+# create a regression model with multiple explanatory variables
+reg_model_extra <- lm(points ~ attitude + stra + surf, data = lrn14a)
+
+# print out a summary of the model
+summary(reg_model_extra)
+
+```
+
+### 4. Results - model simplification (3p.)
+
+Since **only attitude seems to be statistically significantly associated with the dependent variable, points**, we'll run the regression model once more, this time only with attitude as an explanatory variable, to fit the model better and get a more [parsimonious](https://www.statology.org/parsimonious-model/) model. We'll also draw a scatter plot with a regression line to visualize the result. 
 
 ```{r, message=FALSE}
 # a scatter plot of points versus attitude
@@ -198,17 +216,19 @@ The regression line fits the scatter plot quite nicely, with a positive slope an
 Again, we see that attitude is statistically significantly associated with points (p=4.1E-9), and the amount of points rise by 1 when attitude points based on the original survey rise by approx 3.5. The estimate is a little bit higher and the p-value a little bit lower than before. Since we have only one explanatory variable we can assess the multiple R squared of the model (0.19), which should now equal to the square of the correlation coefficient between attitude and points. This means that almost 20% of points can be explained by attitude.
 
 
+### 5. Diagnostic plots (3p.)
+
 We have fitted a regression model to our data and interpreted the results. Now we will assess the model to check whether it complies to our statistic assumptions, and that it is a sensible model to use on our data.
 
-Graphical model validation with plot():
+***Graphical model validation*** with plot():
 
  * Residuals vs Fitted values (1)
  * Normal QQ-plot (2)
  * Residuals vs Leverage (5)
 
 ```{r, message=FALSE}
-# show plots in a matrix
-par(mfrow = c(2,2))
+# par() could be used to show plots in a matrix
+# par(mfrow = c(2,2))
 # draw diagnostic plots using the plot() function.
 plot(reg_model2, which=c(1,2,5))
 
@@ -223,46 +243,15 @@ Linear regression modeling has four main assumptions (quoted from [R for Health 
 
  * In plot 'Residuals vs Fitted' values we see that the variance of the residuals (outcome variable = points) seem to stay equal (assumption 4 &check;).
  * In the Normal QQ plot we see quite normally distributed residuals, some residual data points curving from the normal line in both ends of the plot line, which means that there are some extreme values in the data but the distributions seems normal (assumption 3 &check;)
- * From the plot 'Residuals vs Leverage' we can estimate whether there are observations that affect the model significantly more than others (outliers). As from the QQ plot we see that there are some extreme values but none of them cross the [Cook's distance](https://www.statology.org/residuals-vs-leverage-plot/) treshold so we can determine that there are no outliers affecting the our model.
+ * From the plot 'Residuals vs Leverage' we can estimate whether there are observations that affect the model significantly more than others (outliers). As from the QQ plot we see that there are some extreme values but none of them cross the [Cook's distance](https://www.statology.org/residuals-vs-leverage-plot/) treshold so we can determine that there are no critical outliers affecting the our model.
 
 
 
 
+-------------------------
 
 
-
-### 1. Read and describe data
-&check; Done!
-
-
-### 2. Graphical overview and summary
-Show a graphical overview of the data and show summaries of the variables in the data. Describe and interpret the outputs, commenting on the distributions of the variables and the relationships between them. (0-3 points)
-
-```{r, message=FALSE}
-# This would have been a simpler version of a a scatter plot matrix of the variables.
-# [-1] excludes the first column (here gender), since we'll take it into account in the coloring of the figures.
-#pairs(lrn14a[-1])
-```
-
-&check; Done!
-
-
-### 3. Regression model fitting
-Choose three variables as explanatory variables and fit a regression model where exam points is the target (dependent, outcome) variable. Show a summary of the fitted model and comment and interpret the results. Explain and interpret the statistical test related to the model parameters. If an explanatory variable in your model does not have a statistically significant relationship with the target variable, remove the variable from the model and fit the model again without it. (0-4 points)
-
-&check; Done!
-
-
-### 4. Interpret results
-Using a summary of your fitted model, explain the relationship between the chosen explanatory variables and the target variable (interpret the model parameters). Explain and interpret the multiple R-squared of the model. (0-3 points)
-
-&check; Done!
-
-
-
-### 5. Diagnostic plots
-Produce the following diagnostic plots: Residuals vs Fitted values, Normal QQ-plot and Residuals vs Leverage. Explain the assumptions of the model and interpret the validity of those assumptions based on the diagnostic plots. (0-3 points)
-
+List of diagnostic plots for plot() and which():
 
 which | graphic                                 
 ----- | --------
@@ -274,7 +263,11 @@ which | graphic
 6     | Cook's distance vs Leverage 
 
 
-&check; Done!
+
+&check; &check; &check; &check; &check; Done!
+
+
+
 
 
 
