@@ -254,13 +254,13 @@ Linear regression modeling has four main assumptions (quoted from [R for Health 
 List of diagnostic plots for plot() and which():
 
 which | graphic                                 
------ | --------
-1     | Residuals vs Fitted values 
-2     | Normal QQ-plot
-3     | Standardized residuals vs Fitted values
-4     | Cook's distances
-5     | Residuals vs Leverage 
-6     | Cook's distance vs Leverage 
+|:-----:|:--------:|
+|1     | Residuals vs Fitted values 
+|2     | Normal QQ-plot
+|3     | Standardized residuals vs Fitted values
+|4     | Cook's distances
+|5     | Residuals vs Leverage 
+|6     | Cook's distance vs Leverage 
 
 
 
