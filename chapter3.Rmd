@@ -211,21 +211,36 @@ alc <- mutate(alc, prediction = probabilities >0.5)
 select(alc, sex, famrel, absences, high_use, probability, prediction) %>% tail(10)
 
 # tabulate the target variable versus the predictions
-table(high_use = alc$high_use, prediction = alc$prediction)
+table(high_use = alc$high_use, prediction = alc$prediction) %>% addmargins()
+# transform to proportions
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table() %>% addmargins() %>% round(2)
 
 ```
+Almost one third of students drink alcohol an amount classifiable as 'high use' and our model underestimates the amount by predicting that only 11% of students use that much alcohol.
+
 
 We can visualize our observations and predictions with a bar plot:
 
 ```{r, message=FALSE}
 # initialize a plot of 'prediction' (predicted outcomes)
-p2 <- ggplot(data = alc, aes(x=prediction))
+p2 <- ggplot(data = alc, aes(x=prediction, col=prediction))
 
 # draw a bar plot of high_use by 'high use' (observations)
 p2 + geom_bar() + facet_wrap("high_use")
 
 ```
 As we can see, there are more FALSE observations (True negative observation = no high use of alcohol, left panel) than TRUE (True positive observation = high use of alcohol, right panel) observations. The prediction of true negative observations seems to be better than the prediction of true positive observations.
+
+This can be presented also with a sleeker scatter plot:
+```{r, message=FALSE}
+# initialize a plot of 'high_use' versus 'probability' in 'alc'
+p3 <- ggplot(alc, aes(x = probability, y = high_use, col=prediction))
+
+# define the geom as points and draw the plot
+p3 + geom_point()
+
+```
+
 
 --------------------------------------
 
@@ -252,29 +267,342 @@ roc_obj <- roc(alc$high_use, alc$probability)
 plot(roc_obj)
 
 
-
 ```
 We can see that the curve differs from the 45' curve, which means that our model seems to have at least some predictive value.
 
 
-To calculate the training error (=the total proportion of inaccurately classified individuals) of our model, we'll run the loss function 
+**Training error**
+
+To calculate the training error (=the total proportion of inaccurately classified individuals) of our model, we'll run the loss function (mean prediction error) presented in our course exercises loss_func(response, probability). It will take into account a binomial response/classification variable ('high_use') and the probability of the response to be TRUE for each individual. 
+
+* class is either TRUE (1) or FALSE (0) for our variable of interest ('high_use')
+* prob (float between 0 and 1) is the individual probability that they are classified as TRUE for 'high_use'
+
+abs() gives the absolute value of the difference between class and prob, so if it is >0.5, the prediction has been wrong.
+
+The function assigns the logicals 'TRUE' or 'FALSE' depending on whether the model's prediction is false or true. **OBS!** The function assigns now 'TRUE' = 1, when the prediction has been false! Then it calculates the mean prediction error which is the number of false predictions divided by the number of total observations.
+
+$$
+\frac{n(FP + FN)*1 + n(TP + TN)*0}{N}
+$$
+
+The function:
+```{r, message=FALSE}
+# define the loss function (mean prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  # print(n_wrong) #print this if you want to see the logicals the final result mean() is based on
+  mean(n_wrong)
+}
+
+
+# call loss_func() to compute the average number of wrong predictions in the (training) data
+loss_func(class = alc$high_use, prob = alc$probability)
+
+```
+
+
+A simple guessing strategy might be just guessing that no student ever drinks enough for it to be classified as 'high use' (high_use = FALSE, probability(high_use=TRUE)= 0) or all drinking very much (high_use = TRUE, probability(high_use=TRUE) = 1) or that every other student drinks (probability(high_use=TRUE) = 0.5). These situations can be tested with the loss_func() by determining a constant individual probability (prob) as described above.
+
+```{r, message=FALSE}
+
+# No students' drinking habits are 'high use', high_use=FALSE, probability(high_use=TRUE)= 0
+loss_func(class = alc$high_use, prob = 0)
+
+# All students' drinking habits are 'high use', high_use=TRUE, probability(high_use=TRUE)= 1
+loss_func(class = alc$high_use, prob = 1)
+
+# Every other student's drinking habits are 'high use', high_use=TRUE, probability(high_use=TRUE)= 0.5
+loss_func(class = alc$high_use, prob = 0.49)
+loss_func(class = alc$high_use, prob = 0.51)
+
+# Every third student's drinking habits are 'high use', high_use=TRUE, probability(high_use=TRUE)= 0.3
+loss_func(class = alc$high_use, prob = 0.3)
+
+```
+
+The training error is 23.0%, which means that the models accuracy (1 - training error) is approximately 76%.
+By simply guessing how many students' drinking habits are classified 'high use' we did not reach higher accuracy unless we guessed that every other students drinks:
+
+
+Guess classified as 'high use'|Guessed probability of 'high use' drinking| Training error| Accuracy|
+----:|:----------:|:-----------:|:-----------:|
+No one drinks|0|0.3|70%|
+Everybody drinks|1|0.7|30%|
+Every other drinks*|0.49 & 0.51|0.3 & 0.7|70% & 30%|
+Every third drinks|0.3|0.3|70%|
+
+OBS!
+*This assessment of exactly every other drinking (prob=0.50) can't be done since the function is defined with a 0.5 treshold. Thus the close approximates were used.
+
+
+### 7. Bonus: 10-fold cross-validation
+
+Quoted from our course material:
+*[Cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) is a method of testing a predictive model on unseen data. In cross-validation, the value of a penalty (loss) function (mean prediction error) is computed on data not used for finding the model. Low value = good.
+Cross-validation gives a good estimate of the actual predictive power of the model. It can also be used to compare different models or classification methods.*
+
+```{r}
+# compute the average number of wrong predictions in the (training) data
+loss_func(alc$high_use, alc$probability)
+
+# K-fold cross-validation
+library(boot)
+cvK10 <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
+
+# average number of wrong predictions in the cross validation
+cvK10$delta[1]
+
+```
+The mean prediction error (0.24) combined from the rounds on the testing data seems to be a little bit higher than on the training data (0.23).
+
+The model introduced in our Exercise set 3 had about 0.25 mean prediction error on the 10-fold cross validation on the testing data which implies that our new model has a better test set performance than the one in the Exercise set (variables: sex, failures, absences).
 
 
 
-### 7. Bonus
 
 
-### Super-Bonus
-# automatic cross-validation (useful when you have small population)
-https://eu01st1.zoom.us/web_client/9zdhk1t/html/externalLinkPage.html?ref=https://daviddalpiaz.github.io/r4sl/the-caret-package.html
+### 8. Super-Bonus: Comparison of logistic regression models with different sets of predictors
+
+We'll do a comparison of 6 different testing models, substracting the number of predictors in each model by always keeping the most significant variables (dropping the last 5 variables).
+
+```{r}
+# check all possible variables
+# -> 31 possible independent variables (we'll omit Daily and Weekend alcohol use since they were used for composing our outcome variable!)
+colnames(alc)
+
+# models and summaries
+# detecting the least statistically significant variables
+m1 <- glm(high_use ~  school + sex + age + address + famsize + Pstatus + Medu + Fedu + Mjob + Fjob + reason + guardian + traveltime + studytime + schoolsup + famsup + activities + nursery + higher + internet + romantic + famrel + freetime + goout + health + failures + paid + absences + G1 + G2 + G3 , data = alc, family ="binomial")
+summary(m1)
+
+piis <- summary(m1)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order: goout + famrel + absences + reason + sex + guardian + address + activities + freetime + Mjob + health + paid + famsize + romantic + Fjob + studytime + traveltime + nursery + failures + G1 + school + Fedu + G2 + age + Pstatus + G3 + higher + internet + famsup + Medu + schoolsup
+
+m2 <- glm(high_use ~  goout + famrel + absences + reason + sex + guardian + address + activities + freetime + Mjob + health + paid + famsize + romantic + Fjob + studytime + traveltime + nursery + failures + G1 + school + Fedu + G2 + age + Pstatus + G3, data = alc, family ="binomial")
+summary(m2)
+
+piis <- summary(m2)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order:  goout + absences + famrel + reason + sex + guardian + address + activities + freetime + Mjob + paid + health + famsize + studytime + traveltime + nursery + romantic + failures + G1 + school + Fjob + Fedu + G2 + age + Pstatus + G3
+
+m3 <- glm(high_use ~  goout + absences + famrel + reason + sex + guardian + address + activities + paid + Mjob + health + freetime + famsize + romantic + studytime + Fjob + traveltime + nursery + school + failures + G1, data = alc, family ="binomial")
+summary(m3)
+
+piis <- summary(m3)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order:  goout + absences + famrel + reason + sex + guardian + address + activities + paid + Mjob + health + freetime + famsize + romantic + studytime + Fjob + traveltime + nursery + school + failures + G1
+
+
+m4 <- glm(high_use ~  goout + absences + famrel + reason + sex + guardian + address + activities + paid + Mjob + health + freetime + famsize + romantic + studytime + Fjob, data = alc, family ="binomial")
+summary(m4)
+
+piis <- summary(m4)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order:  goout + absences + famrel + sex + reason + address + guardian + health + Mjob + studytime + activities + paid + famsize + romantic + Fjob + freetime
+
+
+m5 <- glm(high_use ~  goout + absences + famrel + sex + reason + address + guardian + health + Mjob + studytime + activities, data = alc, family ="binomial")
+summary(m5)
+
+piis <- summary(m5)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order:  goout + absences + famrel + sex + reason + guardian + address + activities + studytime + health + Mjob
+
+
+m6 <- glm(high_use ~  goout + absences + famrel + sex + reason + guardian, data = alc, family ="binomial")
+summary(m6)
+
+piis <- summary(m6)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order:  goout + sex + absences + famrel + reason + guardian
+
+
+m7 <- glm(high_use ~  goout + sex + absences + famrel + reason, data = alc, family ="binomial")
+summary(m7)
+
+piis <- summary(m7)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order:  goout + sex + absences + famrel + reason
+
+
+m8 <- glm(high_use ~  goout + sex + absences + famrel, data = alc, family ="binomial")
+summary(m8)
+
+piis <- summary(m8)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order:  goout + sex + absences + famrel
+
+
+m9 <- glm(high_use ~  goout + sex + absences, data = alc, family ="binomial")
+summary(m9)
+
+piis <- summary(m9)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order:  goout + sex + absences
+
+
+m10 <- glm(high_use ~  goout + sex, data = alc, family ="binomial")
+summary(m10)
+
+piis <- summary(m10)[12]
+piis.sort <- as.data.frame(piis)
+names(piis.sort) <- c("Estimate","SE","Tval","Pval")
+psort <- arrange(piis.sort,Pval)
+# sorted order:  goout + sex 
+
+
+m11 <- glm(high_use ~  goout, data = alc, family ="binomial")
+summary(m11)
+
+
+
+# predict() the probability of high_use
+probabilities1 <- predict(m1, type = "response")
+probabilities2 <- predict(m2, type = "response")
+probabilities3 <- predict(m3, type = "response")
+probabilities4 <- predict(m4, type = "response")
+probabilities5 <- predict(m5, type = "response")
+probabilities6 <- predict(m6, type = "response")
+probabilities7 <- predict(m7, type = "response")
+probabilities8 <- predict(m8, type = "response")
+probabilities9 <- predict(m9, type = "response")
+probabilities10 <- predict(m10, type = "response")
+probabilities11 <- predict(m11, type = "response")
+
+library(dplyr)
+# add the predicted probabilities to our dataframe 'alc' in a column named 'probability'
+alc <- mutate(alc, probability1 = probabilities1)
+alc <- mutate(alc, probability2 = probabilities2)
+alc <- mutate(alc, probability3 = probabilities3)
+alc <- mutate(alc, probability4 = probabilities4)
+alc <- mutate(alc, probability5 = probabilities5)
+alc <- mutate(alc, probability6 = probabilities6)
+alc <- mutate(alc, probability7 = probabilities7)
+alc <- mutate(alc, probability8 = probabilities8)
+alc <- mutate(alc, probability9 = probabilities9)
+alc <- mutate(alc, probability10 = probabilities10)
+alc <- mutate(alc, probability11 = probabilities11)
+
+# use the probabilities to make a prediction of high_use
+# Let's set our prediction treshold: If the probability is more than 50%, prediction = TRUE, otherwise it's FALSE.
+alc <- mutate(alc, prediction1 = probabilities1 >0.5)
+alc <- mutate(alc, prediction2 = probabilities2 >0.5)
+alc <- mutate(alc, prediction3 = probabilities3 >0.5)
+alc <- mutate(alc, prediction4 = probabilities4 >0.5)
+alc <- mutate(alc, prediction5 = probabilities5 >0.5)
+alc <- mutate(alc, prediction6 = probabilities6 >0.5)
+alc <- mutate(alc, prediction7 = probabilities7 >0.5)
+alc <- mutate(alc, prediction8 = probabilities8 >0.5)
+alc <- mutate(alc, prediction9 = probabilities9 >0.5)
+alc <- mutate(alc, prediction10 = probabilities10 >0.5)
+alc <- mutate(alc, prediction11 = probabilities11 >0.5)
+
+
+
+```
+
+
+Training and testing errors by model
+```{r, message=FALSE}
+
+# Models numbered
+modelss <- 1:11
+
+# call loss_func() to compute the average number of wrong predictions in the (training) data
+pred_train <- loss_func(class = alc$high_use, prob = alc$probability1)
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability2))
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability3))
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability4))
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability5))
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability6))
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability7))
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability8))
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability9))
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability10))
+pred_train <- append(pred_train, loss_func(class = alc$high_use, prob = alc$probability11))
+
+#10-fold cross validation on testing data
+cvK10_ss1 <- cv.glm(data = alc, cost = loss_func, glmfit = m1, K = 10)
+cvK10_ss2 <- cv.glm(data = alc, cost = loss_func, glmfit = m2, K = 10)
+cvK10_ss3 <- cv.glm(data = alc, cost = loss_func, glmfit = m3, K = 10)
+cvK10_ss4 <- cv.glm(data = alc, cost = loss_func, glmfit = m4, K = 10)
+cvK10_ss5 <- cv.glm(data = alc, cost = loss_func, glmfit = m5, K = 10)
+cvK10_ss6 <- cv.glm(data = alc, cost = loss_func, glmfit = m6, K = 10)
+cvK10_ss7 <- cv.glm(data = alc, cost = loss_func, glmfit = m7, K = 10)
+cvK10_ss8 <- cv.glm(data = alc, cost = loss_func, glmfit = m8, K = 10)
+cvK10_ss9 <- cv.glm(data = alc, cost = loss_func, glmfit = m9, K = 10)
+cvK10_ss10 <- cv.glm(data = alc, cost = loss_func, glmfit = m10, K = 10)
+cvK10_ss11 <- cv.glm(data = alc, cost = loss_func, glmfit = m11, K = 10)
+
+
+
+# average number of wrong predictions in the cross validation
+cvK10$delta[1]
+cvK10_ss <- cvK10_ss1$delta[1]
+cvK10_ss <- append(cvK10_ss,cvK10_ss2$delta[1])
+cvK10_ss <- append(cvK10_ss,cvK10_ss3$delta[1])
+cvK10_ss <- append(cvK10_ss,cvK10_ss4$delta[1])
+cvK10_ss <- append(cvK10_ss,cvK10_ss5$delta[1])
+cvK10_ss <- append(cvK10_ss,cvK10_ss6$delta[1])
+cvK10_ss <- append(cvK10_ss,cvK10_ss7$delta[1])
+cvK10_ss <- append(cvK10_ss,cvK10_ss8$delta[1])
+cvK10_ss <- append(cvK10_ss,cvK10_ss9$delta[1])
+cvK10_ss <- append(cvK10_ss,cvK10_ss10$delta[1])
+cvK10_ss <- append(cvK10_ss,cvK10_ss11$delta[1])
+
+
+# create a tibble
+supbon <- tibble(modelss, pred_train, cvK10_ss)
+
+```
+
+
+Trends of both training and testing errors by the number of predictors in the model
+```{r, message=FALSE}
+# Pivot data
+longdf <- pivot_longer(supbon, c('pred_train','cvK10_ss'))
+
+# initialize and draw a plot
+ggplot(data=longdf, aes(x=modelss, y=value, col=name)) + geom_point() + geom_line()
+
+
+
+```
+
+
+
+* automatic cross-validation (useful when you have small population)
+https://daviddalpiaz.github.io/r4sl/the-caret-package.html
 library(caret)
 
 
 &check; &check; &check;
 
 ## Resources
-* [Wikipedia on drinking age](https://en.wikipedia.org/wiki/Legal_drinking_age).
 
+* [Wikipedia on drinking age](https://en.wikipedia.org/wiki/Legal_drinking_age).
+* [Sorting regression summaries](https://stackoverflow.com/questions/17483462/regression-summaries-in-r)
+* [Pivot data from wide to long with pivot_long(), a "new version" of gather()](https://tidyr.tidyverse.org/reference/pivot_longer.html)
 
 
 
