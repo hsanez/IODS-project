@@ -1,0 +1,289 @@
+# Ch3 Logistic regression and cross-validation
+
+
+*Describe the work you have done this week and summarize your learning.*
+
+- Describe your work and results clearly. 
+- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
+- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+
+
+```{r}
+date()
+```
+
+Here we go yet again...
+
+## Libraries used for Ch3
+
+Obs! You might need to install some packages first if you haven't used them before (see install.packages()).
+```{r, message=FALSE}
+#install.packages(c("tidyverse","GGally","readr"))
+```
+
+Load the needed R packages before getting to work:
+```{r, message=FALSE}
+#load required packages
+library(tidyverse)
+library(GGally)
+library(dplyr)
+library(ggplot2)
+```
+
+## Data wrangling
+See create_alc.R on [my Github repository](https://github.com/hsanez/IODS-project/tree/master/data/create_alc.R).
+
+
+## Data analysis
+
+### REPORT (Assignment 3)
+
+### 2. Read and describe the data
+
+Read the analysis data.
+```{r, message=FALSE}
+# Read data (Make sure you're in the correct working folder with getwd())
+alc <- read_csv("data/student_alc.csv")
+# Alternative site for reading the data
+#alc <- read_csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/alc.csv")
+```
+
+Describe the data.
+```{r, message=FALSE}
+# print variable names and dimension of the tibble
+colnames(alc); dim(alc)
+```
+The analysis dataset we are using for this course assignment consists of the above listed 35 variables and 370 observations.
+
+Our analysis dataset is a subset of an original data *'Student Performance Data Set'* by Prof. Cortez (University of Minho, Portugal) collected from two Portuguese schools during the school year 2005-2006. The original dataset was collected using questionnaires and school reports.
+
+The analysis dataset was created by joining two datasets of the original data; student data from two school subjects: Mathematics and Portuguese language.
+These subject-specific datasets were merged by their common variables, and only students present in both subject datasets were included in the resulting analysis dataset. Naturally there was variation in the following time-related variables:
+
+* failures = number of past class failures (numeric: n if 1<=n<3, else 4)
+* paid = extra paid classes within the course subject (Math or Portuguese) (binary: yes or no)
+* absences = number of school absences (numeric: from 0 to 93)
+* G1 = first period grade (numeric: from 0 to 20)
+* G2 = second period grade (numeric: from 0 to 20)
+* G3 = final grade (numeric: from 0 to 20, output target)
+
+For the numeric variables we calculated student-specific averages using both of the datasets (Mathematics and Portuguese language). For the binary variable (paid) we chose the value from the Mathematics dataset. 
+
+See the [R code](https://github.com/hsanez/IODS-project/tree/master/data/create_alc.R) for the exact course of our data wrangling.
+
+You can find the variable descriptions and more information about (and download) the original dataset on [this page](https://archive.ics.uci.edu/ml/datasets/Student+Performance).
+
+
+### 3. Hypotheses on the relationships between alcohol consumption and chosen variables
+
+My chosen variables:
+
+* age = student's age (numeric: from 15 to 22)
+* sex = student's sex (binary: 'F' - female or 'M' - male)
+* famrel = quality of family relationships (numeric: from 1 - very bad to 5 - excellent)
+* higher = wants to take higher education (binary: yes or no)
+
+The original dataset includes information on students from 15 to 22 years. This means all student's aren't of legal drinking age, [which seems to be 18 in Portugal](https://en.wikipedia.org/wiki/Legal_drinking_age). They won't be able to buy alcohol by themselves which could be seen in the relationship between age and alcohol use; there should be less alcohol use among younger students.
+
+In average, men are larger than women, and their body composition differs, which makes their physiology and thus alcohol metabolism different from women's. This results in male tolerance for alcohol being usually better, which may lead to them drinking more before feeling the effects of alcohol. For this possible reason I think there might be a relationship between sex and alcohol use.
+
+Students might spend a lot of time at home both studying or during their freetime. Thus, bad family relations could affect studying possibilities, motivation and recovering from studying. One reason for bad family relationships may be alcohol itself, maybe overused by the student itself or by other family members.
+
+Students drinking more alcohol might have more absences from school. Since weekday alcohol consumption is measured it could be seen as absences during the school week. Friday or Saturday use might not come up as absences in the data, assuming that these schools in Portugal have a regular Monday to Friday school week schedule.
+
+
+My hypotheses:
+
+* More alcohol use among older students.
+* More alcohol use among male students.
+* More alcohol use among students with worse family relationships.
+* More alcohol use among students with more school absences.
+
+
+
+
+### 4. Descriptive analyses
+
+```{r, message=FALSE}
+# Load needed libraries
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(GGally)
+
+# glimpse at the data
+glimpse(alc); dim(alc)
+
+# create a vector of the chosen variables + alcohol use
+myvars <- c('age', 'sex', 'famrel', 'absences', 'alc_use', 'high_use')
+
+# draw a bar plot of the chosen variables
+gather(alc[myvars]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
+
+# draw summary table grouped by sex and low/high use of alcohol consumption
+alc %>% group_by(sex, high_use) %>% summarise(count = n(), mean_age = round(mean(age),1), mean_family_relation_quality = round(mean(famrel),1), mean_absences = round(mean(absences),1))
+
+# draw summary plot matrix stratified for sex as an overview of the data and correlations
+p <- ggpairs(alc[myvars], mapping = aes(col=sex, alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
+p
+
+
+
+```
+
+
+```{r, message=FALSE}
+library(dplyr); library(ggplot2)
+
+alc %>% group_by(sex, high_use) %>% summarise(count = n(), mean_grade = round(mean(G3),1))
+
+
+```
+
+A NEW MODEL?
+
+### 5. Regression analyses
+Our outcome variable is dichotomous, or binary, so we will assess its relationship with our chosen variables with a logistic regression model.
+
+Dependent variable:
+
+* High/low alcohol use (high_use) *(dichotomous)*
+
+Independent variables:
+
+* age *(numerical)*
+* sex *(dichotomous)*
+* quality of family relations (famrel) *(ordinal)*
+* number of school absences (absences) *(numerical)*
+
+
+```{r, message=FALSE}
+library(dplyr); library(ggplot2)
+
+# First, we define our logistic regression model m
+# We'll use glm(), a generalized linear model function so we need to specify our model type to be logistic -> family="binomial", which makes the function use the link option 'logit'.
+m <- glm(high_use ~ age + sex + famrel + absences, data = alc, family = "binomial")
+
+# print out a summary of the model
+summary(m)
+
+# Compute odds ratios (OR) and their confidence intervals (CI) for each variable
+OR <- coef(m) %>% exp %>% round(2)
+CI <- confint(m) %>% exp %>% round(2)
+# print ORs and CIs as a table
+cbind(OR, CI)
+
+
+
+
+```
+
+
+
+Present and interpret a summary of the fitted model. Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. Interpret the results and compare them to your previously stated hypothesis. 
+
+http://stats.stackexchange.com/questions/60817/significance-of-categorical-predictor-in-logistic-regression
+
+
+### 6. Predictive power of the model
+
+To predict the power of our model we will create a ['confusion matrix'](linkki), a graph (TÄHÄN TARKENNUS), and compute the training error of the model. Finally we'll compare the performance of the model with performance of XXXX, a simple guessing strategy.
+
+As instructed, we'll use only the variables that showed statistical significance: sex, famrel, absences. Age had no statistically significant association with alcohol use level based on our regression model.
+
+
+```{r}
+
+# predict() the probability of high_use
+# We're using our model 'm' as the object of the predict()
+# type = 'response' defines that we want our prediction results on the scale of the response variable, instead of the default scale. This means that when dealing with a binomial target variable (e.g. our 'high_use') we will get our prediction results as predicted probabilities instead of logit-scaled probabilities (default for binomial ).
+probabilities <- predict(m, type = "response")
+
+library(dplyr)
+# add the predicted probabilities to our dataframe 'alc' in a column named 'probability'
+alc <- mutate(alc, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+# Let's set our prediction treshold: If the probability is more than 50%, prediction = TRUE, otherwise it's FALSE.
+alc <- mutate(alc, prediction = probabilities >0.5)
+
+# check the last ten original classes, predicted probabilities, and class predictions
+select(alc, sex, famrel, absences, high_use, probability, prediction) %>% tail(10)
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction)
+
+```
+
+We can visualize our observations and predictions with a bar plot:
+
+```{r, message=FALSE}
+# initialize a plot of 'prediction' (predicted outcomes)
+p2 <- ggplot(data = alc, aes(x=prediction))
+
+# draw a bar plot of high_use by 'high use' (observations)
+p2 + geom_bar() + facet_wrap("high_use")
+
+```
+As we can see, there are more FALSE observations (True negative observation = no high use of alcohol, left panel) than TRUE (True positive observation = high use of alcohol, right panel) observations. The prediction of true negative observations seems to be better than the prediction of true positive observations.
+
+--------------------------------------
+
+We can also visualize our confusion matrix with a [ROC (receiver operating characteristic) curve](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc). This will show the performance of our classification model with the true positive and false positive rate.
+
+We'll visualize the confusion matrix (sensitivity and specificity) with a [ROC (receiver operating characteristic) curve](https://www.statology.org/roc-curve-ggplot2/). This will help us assess how well our logistic regression model fits the dataset.
+
+* Sensitivity = the probability that the model predicts a true positive outcome of the observations
+* Specificity = the probability that the model predicts a true negative outcome of the observations (=1-FPR)
+
+The ROC curve is constructed by plotting the true positive rate (TPR) against the false positive rate (FPR).
+
+* TPR = TP/(TP+FN)
+* FPR = FP/(TN+FP)
+
+The closer the curve comes to the upper left corner of the plot, the more accurate the test is. THe closer to the grey 45' line the curve gets, the less accurate the test is.
+
+```{r}
+library(pROC)
+
+# Define the curve with function roc(response, predictor), see ?roc() and pROC documentation (Resources)
+roc_obj <- roc(alc$high_use, alc$probability)
+# Draw the plot
+plot(roc_obj)
+
+
+
+```
+We can see that the curve differs from the 45' curve, which means that our model seems to have at least some predictive value.
+
+
+To calculate the training error (=the total proportion of inaccurately classified individuals) of our model, we'll run the loss function 
+
+
+
+### 7. Bonus
+
+
+### Super-Bonus
+# automatic cross-validation (useful when you have small population)
+https://eu01st1.zoom.us/web_client/9zdhk1t/html/externalLinkPage.html?ref=https://daviddalpiaz.github.io/r4sl/the-caret-package.html
+library(caret)
+
+
+&check; &check; &check;
+
+## Resources
+* [Wikipedia on drinking age](https://en.wikipedia.org/wiki/Legal_drinking_age).
+
+
+
+
+```{r, message=FALSE}
+
+```
+
+[]
+
+$
+
+
