@@ -21,7 +21,7 @@ output:
 |:-------:|:------------:|:------:|:------:|:------:|:------:|
 | 1 | Start me up! | 20 |1 & 2| - |&cross;|
 | 2 | Regression and model validation |5+15| 3 & 4 | 7 |&cross;|
-| 3 | Logistic regression | 5+15 | 5 & 6 | 7 | |
+| 3 | Logistic regression | 5+15 | 5 & 6 | 7 |&cross;|
 | 4 | Clustering and classification |||||
 | 5 | Dimensionality reduction techniques |||||
 | 6 | Analysis of longitudinal data |||||

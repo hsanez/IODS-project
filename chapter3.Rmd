@@ -38,6 +38,8 @@ See create_alc.R on [my Github repository](https://github.com/hsanez/IODS-projec
 
 ### REPORT (Assignment 3)
 
+**The purpose of this analysis is to study the relationships between high/low alcohol consumption and some of the other variables in our data.**
+
 ### 2. Read and describe the data
 
 Read the analysis data.
@@ -78,10 +80,10 @@ You can find the variable descriptions and more information about (and download)
 
 My chosen variables:
 
-* age = student's age (numeric: from 15 to 22)
-* sex = student's sex (binary: 'F' - female or 'M' - male)
-* famrel = quality of family relationships (numeric: from 1 - very bad to 5 - excellent)
-* higher = wants to take higher education (binary: yes or no)
+* **age** = student's age (numeric: from 15 to 22)
+* **sex** = student's sex (binary: 'F' - female or 'M' - male)
+* **famrel** = quality of family relationships (numeric: from 1 - very bad to 5 - excellent)
+* **absences** = number of school absences (numeric: from 0 to 93)
 
 The original dataset includes information on students from 15 to 22 years. This means all student's aren't of legal drinking age, [which seems to be 18 in Portugal](https://en.wikipedia.org/wiki/Legal_drinking_age). They won't be able to buy alcohol by themselves which could be seen in the relationship between age and alcohol use; there should be less alcohol use among younger students.
 
@@ -92,7 +94,7 @@ Students might spend a lot of time at home both studying or during their freetim
 Students drinking more alcohol might have more absences from school. Since weekday alcohol consumption is measured it could be seen as absences during the school week. Friday or Saturday use might not come up as absences in the data, assuming that these schools in Portugal have a regular Monday to Friday school week schedule.
 
 
-My hypotheses:
+**My hypotheses:**
 
 * More alcohol use among older students.
 * More alcohol use among male students.
@@ -117,7 +119,7 @@ glimpse(alc); dim(alc)
 # create a vector of the chosen variables + alcohol use
 myvars <- c('age', 'sex', 'famrel', 'absences', 'alc_use', 'high_use')
 
-# draw a bar plot of the chosen variables
+# pivot data and draw a bar plot of the chosen variables
 gather(alc[myvars]) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
 
 # draw summary table grouped by sex and low/high use of alcohol consumption
@@ -131,30 +133,63 @@ p
 
 ```
 
+* **Absences**:
+  + Most students have either only a few (0-4) absences or very many (20-44) absences.
+  + There is also a portion of students that have an average amount of absences (median=12).
+  + Female students with high use of alcohol have the most absences.
+  + Male students with no high alcohol use have the least amount of absences.
+  + There seems to be a statistically significant positive correlation between alcohol use and absence (R=-0.123) regardless of sex.
 
-```{r, message=FALSE}
-library(dplyr); library(ggplot2)
+* **Age**:
+  + Students are between 15 and 22, most of them under 19.
+  + The correlation analysis implies that there is a statistically significant positive correlation between age and alcohol use among male students.
 
-alc %>% group_by(sex, high_use) %>% summarise(count = n(), mean_grade = round(mean(G3),1))
+* **Family relations**:
+  + Most students seem to have good (4-5 on Likert scale) family relations.
+  + Male students who don't use high amounts of alcohol seem to have the best family relations and it seems to correlate statistically significantly with alcohol use.
+
+* **Alcohol use**:
+  + There are more students who don't use high amounts of alcohol (n=259).
+  + Most of students who don't use high amounts of alcohol are female students (n=154).
+  + There are more male students who use high amounts of alcohol compared to female students (n=41).
+
+* **Sex**:
+  + There are more female (n=195) than male students (n=175).
 
 
-```
 
-A NEW MODEL?
+* **My hypotheses:**
+  + More alcohol use among older students. **-->** <span style="color:green">True</span> among male students!
+  + More alcohol use among male students. **-->** <span style="color:green">True!</span>
+  + More alcohol use among students with worse family relationships. **-->** <span style="color:green">True</span> among male students!
+  + More alcohol use among students with more school absences. **-->** <span style="color:green">True! </span>
+  
+  
+<center>
+  
+Nicely hypothesized - or - as *Jorma Uotinen* might say:
+
+  
+  ![](IODS-project_figs/ei-huono.jpg){width=35% height=50%}
+  
+</center>
+
+
+
 
 ### 5. Regression analyses
 Our outcome variable is dichotomous, or binary, so we will assess its relationship with our chosen variables with a logistic regression model.
 
 Dependent variable:
 
-* High/low alcohol use (high_use) *(dichotomous)*
+* High/low alcohol use (**high_use**) *(dichotomous)*
 
 Independent variables:
 
-* age *(numerical)*
-* sex *(dichotomous)*
-* quality of family relations (famrel) *(ordinal)*
-* number of school absences (absences) *(numerical)*
+* **age** *(numerical)*
+* **sex** *(dichotomous)*
+* quality of family relations (**famrel**) *(ordinal)*
+* number of school absences (**absences**) *(numerical)*
 
 
 ```{r, message=FALSE}
@@ -178,18 +213,43 @@ cbind(OR, CI)
 
 ```
 
+* **Sex, Family relations and absences** seem to have a statistically significant association with high alcohol use (p<0.01).
+* **Odds ratio** is $ e^{\beta}$
+  + Male students have a 2.98 times the odds of using high amounts of alcohol compared to female students. The 95% confidence intervals are 1.8-4.9 (both above 1), which implies a statistically significant association.
+  + Good family relations seem to be associated with less use of alcohol, the odds ratio is 0.72 (CI 0.6-0.9, both below 1) implying that good family relations are statistically significantly associated with a 28% (1-0.72) reduction on the risk of using high amounts of alcohol use.
+  + Absences seem to be statistically significantly associated with high use of alcohol. The increase of school absences by one is associated with an increase of 9% in the odds of high alcohol use.
+* **Age** has no statistically significant association with high level of alcohol use. 
+  
+
+* **My hypotheses:**
+  + More alcohol use among older students. **-->** <span style="color:green">~~True~~</span> <span style="color:red"> WRONG </span> among male students!
+  + More alcohol use among male students. **-->** <span style="color:green">True!</span>
+  + More alcohol use among students with worse family relationships. **-->** <span style="color:green">True</span> among male students!
+  + More alcohol use among students with more school absences. **-->** <span style="color:green">True! </span>
 
 
-Present and interpret a summary of the fitted model. Present and interpret the coefficients of the model as odds ratios and provide confidence intervals for them. Interpret the results and compare them to your previously stated hypothesis. 
+**In summary, three of my original hypothesis seem to stay valid after our correlation and regression analyses.**  
 
-http://stats.stackexchange.com/questions/60817/significance-of-categorical-predictor-in-logistic-regression
+
+<center>
+
+One hypothesis down! Oh no! But **no worries...**
+
+  
+  ![](IODS-project_figs/Its-okay-We-got-this.jpg){width=35% height=50%}
+  
+</center>
+
+
+
+
 
 
 ### 6. Predictive power of the model
 
-To predict the power of our model we will create a ['confusion matrix'](linkki), a graph (TÄHÄN TARKENNUS), and compute the training error of the model. Finally we'll compare the performance of the model with performance of XXXX, a simple guessing strategy.
+To predict the power of our model we will create a ['confusion matrix'](https://en.wikipedia.org/wiki/Confusion_matrix), some graphs (bar plot, scatter plot and ROC curve), and compute the training error of the model. Finally we'll compare the performance of the model with a simple guessing strategy. Later, in [part 7](#7.-Bonus:-10-fold-cross-validation) of this report, we'll test the performance of the model with cross-validation.
 
-As instructed, we'll use only the variables that showed statistical significance: sex, famrel, absences. Age had no statistically significant association with alcohol use level based on our regression model.
+As instructed, we'll use only the variables that showed statistical significance: **sex, famrel, absences**. Age had no statistically significant association with alcohol use level based on our regression model.
 
 
 ```{r}
@@ -223,13 +283,23 @@ We can visualize our observations and predictions with a bar plot:
 
 ```{r, message=FALSE}
 # initialize a plot of 'prediction' (predicted outcomes)
-p2 <- ggplot(data = alc, aes(x=prediction, col=prediction))
+#basic colors
+#p2 <- ggplot(data = alc, aes(x=prediction, col=prediction, fill=prediction))
+# Custom colors
+pred_colors <- c("#FFA500","#00FF00")
+p2 <- ggplot(data = alc, aes(x=prediction, fill=prediction)) +
+  scale_fill_manual(values=pred_colors)
 
 # draw a bar plot of high_use by 'high use' (observations)
-p2 + geom_bar() + facet_wrap("high_use")
+# delineate outcome variable labels
+## define new labels
+outlab <- c('True negative','True positive')
+## Define old labels in same order
+names(outlab) <- c('FALSE','TRUE')
+p2 + geom_bar() + facet_wrap("high_use", labeller=labeller(high_use=outlab))
 
 ```
-As we can see, there are more FALSE observations (True negative observation = no high use of alcohol, left panel) than TRUE (True positive observation = high use of alcohol, right panel) observations. The prediction of true negative observations seems to be better than the prediction of true positive observations.
+There are more FALSE observations (True negative observation = no high use of alcohol, left panel) than TRUE (True positive observation = high use of alcohol, right panel) observations. The prediction of true negative observations seems to be better than the prediction of true positive observations.
 
 This can be presented also with a sleeker scatter plot:
 ```{r, message=FALSE}
@@ -332,8 +402,13 @@ Everybody drinks|1|0.7|30%|
 Every other drinks*|0.49 & 0.51|0.3 & 0.7|70% & 30%|
 Every third drinks|0.3|0.3|70%|
 
-OBS!
+**OBS!**
 *This assessment of exactly every other drinking (prob=0.50) can't be done since the function is defined with a 0.5 treshold. Thus the close approximates were used.
+
+
+**In summary, our model seems to be better in predicting the level of alcohol use of our students than simple guessing.**
+
+
 
 
 ### 7. Bonus: 10-fold cross-validation
@@ -354,9 +429,9 @@ cvK10 <- cv.glm(data = alc, cost = loss_func, glmfit = m, K = 10)
 cvK10$delta[1]
 
 ```
-The mean prediction error (0.24) combined from the rounds on the testing data seems to be a little bit higher than on the training data (0.23).
+The mean prediction error (0.25) combined from the rounds on the testing data seems to be a little bit lower than on the training data (0.24).
 
-The model introduced in our Exercise set 3 had about 0.25 mean prediction error on the 10-fold cross validation on the testing data which implies that our new model has a better test set performance than the one in the Exercise set (variables: sex, failures, absences).
+The model introduced in our Exercise set 3 had about 0.25 mean prediction error on the 10-fold cross validation on the testing data which implies that our new model (variables: sex, famrel, absences) has a similar test set performance to the one used in the Exercise set (variables: sex, failures, absences).
 
 
 
@@ -364,9 +439,11 @@ The model introduced in our Exercise set 3 had about 0.25 mean prediction error 
 
 ### 8. Super-Bonus: Comparison of logistic regression models with different sets of predictors
 
-We'll do a comparison of 6 different testing models, substracting the number of predictors in each model by always keeping the most significant variables (dropping the last 5 variables).
+We'll do a comparison of 11 different testing models, substracting the number of predictors in each model by always keeping the most significant variables (dropping the last 5 variables then later excluding only one variable per model).
 
-```{r}
+
+**Defining the models (logistic regression) and assigning predictions based on prediction probabilities **
+```{r, message=FALSE, results=FALSE}
 # check all possible variables
 # -> 31 possible independent variables (we'll omit Daily and Weekend alcohol use since they were used for composing our outcome variable!)
 colnames(alc)
@@ -489,7 +566,6 @@ probabilities9 <- predict(m9, type = "response")
 probabilities10 <- predict(m10, type = "response")
 probabilities11 <- predict(m11, type = "response")
 
-library(dplyr)
 # add the predicted probabilities to our dataframe 'alc' in a column named 'probability'
 alc <- mutate(alc, probability1 = probabilities1)
 alc <- mutate(alc, probability2 = probabilities2)
@@ -520,13 +596,27 @@ alc <- mutate(alc, prediction11 = probabilities11 >0.5)
 
 
 ```
+The order of the variables (p-value) changed between regressions. However, the 'top' variables' significance stayed and they kept their top positions on the regression summaries through all the regressions. The less significant variables changed rankings often, and thus they happened to be the ones to primarily get discarded from the model.
 
 
-Training and testing errors by model
+<center>
+
+**Nota bene!**
+
+I didn't get my for-loops nor dynamic functions to work so part 8 scripts have been <ins> and will continue being</ins> ugly...sorry! But **don't worry**, since...
+
+  
+  ![*Kittycat suffering from ugly-scriptitis*](IODS-project_figs/its-okay-youre-gonna.jpg){width=30% height=100%}
+
+
+</center>
+
+
+**Training and testing errors by model**
 ```{r, message=FALSE}
 
-# Models numbered
-modelss <- 1:11
+# Models numbered by amount of variables used
+modelss <- c(31,26,21,16,11,6,5,4,3,2,1)
 
 # call loss_func() to compute the average number of wrong predictions in the (training) data
 pred_train <- loss_func(class = alc$high_use, prob = alc$probability1)
@@ -553,7 +643,6 @@ cvK10_ss8 <- cv.glm(data = alc, cost = loss_func, glmfit = m8, K = 10)
 cvK10_ss9 <- cv.glm(data = alc, cost = loss_func, glmfit = m9, K = 10)
 cvK10_ss10 <- cv.glm(data = alc, cost = loss_func, glmfit = m10, K = 10)
 cvK10_ss11 <- cv.glm(data = alc, cost = loss_func, glmfit = m11, K = 10)
-
 
 
 # average number of wrong predictions in the cross validation
@@ -583,35 +672,51 @@ Trends of both training and testing errors by the number of predictors in the mo
 longdf <- pivot_longer(supbon, c('pred_train','cvK10_ss'))
 
 # initialize and draw a plot
-ggplot(data=longdf, aes(x=modelss, y=value, col=name)) + geom_point() + geom_line()
-
-
+ggplot(data=longdf, aes(x=modelss, y=value, col=name)) + geom_point() + geom_line() +
+  # Edit legend title and labels
+  scale_color_discrete(name = "Mean prediction error", labels = c("testing", "training")) +
+  # Edit label names and title
+  labs(x="Model", title='Trends of training and testing errors by the number of predictors in the model')
 
 ```
 
+**The mean prediction error is:**
+
+* always lower in the training set.
+* very high in both the testing and training set when the model has only 1-2 predictors.
+* quite low in both the testing and training set when the model has 3-5 predictors.
+* quite high in both sets when there are 6-16 predictors in the model.
+* low in the training set and very high in the testing set when there are 21-31 predictors in the model.
+
+$\rightarrow$ **The predictive logarithmic regression model is at its best with not too few nor too many variables** $\rightarrow$ 3-5 variables seems like a good option for model construction.
 
 
-* automatic cross-validation (useful when you have small population)
-https://daviddalpiaz.github.io/r4sl/the-caret-package.html
-library(caret)
 
 
-&check; &check; &check;
+&check; &check; &check; &check; &check; &check; &check; &check; &check; Done!
+
+
+
+
 
 ## Resources
 
 * [Wikipedia on drinking age](https://en.wikipedia.org/wiki/Legal_drinking_age).
 * [Sorting regression summaries](https://stackoverflow.com/questions/17483462/regression-summaries-in-r)
 * [Pivot data from wide to long with pivot_long(), a "new version" of gather()](https://tidyr.tidyverse.org/reference/pivot_longer.html)
-
+* [Pic of Jorma Uotinen](https://makemyhair.munblogi.com/files/2015/08/maxresdefault.jpg)
+* [Nice help with logaritmic regression interpretation](https://quantifyinghealth.com/interpret-logistic-regression-coefficients/)
+* [On interpretation of categorical variables in regression analysis](https://stats.stackexchange.com/questions/60817/significance-of-categorical-predictor-in-logistic-regression)
+* [We go this -meme](https://memeshappen.com/meme/77815/Its-okay)
+* [ggplot2 facet labeling changes](https://www.datanovia.com/en/blog/how-to-change-ggplot-facet-labels/)
+* [ggplot2 label and legend changes](https://www.datanovia.com/en/blog/ggplot-legend-title-position-and-labels/)
+* [ggplot2 cheat sheet](https://www.maths.usyd.edu.au/u/UG/SM/STAT3022/r/current/Misc/data-visualization-2.1.pdf)
+* [Poor cat suffering from ugly-scriptitis](https://makeameme.org/meme/its-okay-youre-4420ef7cf7)
 
 
 ```{r, message=FALSE}
 
 ```
 
-[]
-
-$
 
 
