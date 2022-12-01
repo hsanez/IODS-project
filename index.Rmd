@@ -23,7 +23,7 @@ output:
 | 2 | Regression and model validation |5+15| 3 & 4 | 7 |&cross;|
 | 3 | Logistic regression | 5+15 | 5 & 6 | 7 |&cross;|
 | 4 | Clustering and classification | 15+5 |-|12, 17 & 18|&cross;|
-| 5 | Dimensionality reduction techniques |||||
+| 5 | Dimensionality reduction techniques | 5 + 15 | 13 & 14 | - |&cross;|
 | 6 | Analysis of longitudinal data |||||
 | Misc | Misc |||||
 
@@ -48,7 +48,13 @@ output:
 ***
 
 ```{r child = "chapter4.Rmd"}
-# This will include Chapter 3 (that is updated in its own file) in the document.
+# This will include Chapter 4 (that is updated in its own file) in the document.
+```
+
+***
+
+```{r child = "chapter5.Rmd"}
+# This will include Chapter 5 (that is updated in its own file) in the document.
 ```
 
 ***

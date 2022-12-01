@@ -1,0 +1,379 @@
+# Ch5 Dimensionality reduction techniques
+
+
+*Describe the work you have done this week and summarize your learning.*
+
+- Describe your work and results clearly. 
+- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
+- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+
+
+```{r}
+date()
+```
+
+Here we go again...
+
+## Libraries used for Ch5
+
+Obs! You might need to install some packages first if you haven't used them before (see install.packages()).
+```{r, message=FALSE}
+#install.packages(c("tidyverse","GGally","readr", "MASS", "corrplot", "psych"))
+```
+
+Load the needed R packages before getting to work:
+```{r, message=FALSE}
+#load required packages
+library(tidyverse)
+library(GGally)
+#library(dplyr)
+library(ggplot2)
+library(corrplot)
+#library(stringr)
+library(psych) 
+library(FactoMineR)
+```
+
+
+## Data analysis (15p.)
+
+
+### 1. Loading and describing the data 'human'
+
+
+```{r, message=FALSE}
+# load the 'human' data
+human <- read.csv("human_row_names.csv", row.names = 1)
+# Alternative data url
+# human <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/human2.txt", row.names = 1)
+
+# explore the dataset
+str(human);dim(human)
+
+```
+**Graphical overview of the data**
+
+```{r, message=FALSE}
+# summary of the data
+summary(human)
+
+
+# Summary plot matrix with correlation and density plots
+p1 <- ggpairs(human, mapping = aes(alpha=0.3), 
+              title="Descriptives and Pearson correlation",
+              lower = list(combo = wrap("facethist", bins = 20)))
+p1
+
+# compute the correlation matrix and visualize it with corrplot
+
+#correaltion matrix
+cor_matrix_h <- cor(human, method='spearman')
+
+#p-values that correspond our correlation coefficients
+cor_pmatrix_h <- corr.test(human, method = "spearman")$p
+
+# visualize
+corrplot(cor_matrix_h, type='upper', tl.col='black', col=COL2('BrBG'), addCoef.col='black', number.cex = 0.6, p.mat = cor_pmatrix_h, sig.level = 0.05)
+
+```
+
+All our variables are skewed. The significance values (p-values) seem to differ a little between the two plots. In our first plot p-values are determined as 
+
+* "***" p < 0.001
+* "**" p < 0.01
+* "*" p < 0.05
+* "." p < 0.10
+* " " otherwise
+
+Our second plot shows all Spearman's correlation coefficients in numbers, the color and sizes of the circles, and correlations with p < 0.05 are seen stroke out.
+
+This difference is due to **ggpairs()** (1st plot) using Pearson's correlations and us assigning **corrplot()** (2nd plot) with Spearman's correlation derived data. Since our variables seemed skewed, I prefer using Spearman's correlation for bivariate correlation analysis.
+
+There seems to be several strong and statistically significant correlations:
+
+* Higher maternal mortality **(Mat.Mor)** is correlated with:
+  + lower ratio of females to males with at least secondary education **(Edu2.FM)**
+  + lower expected years of schooling **(Edu_Exp)**
+  + lower life expectancy **(Life_Exp)**
+  + lower gross national income per capita **(GNI)**
+  + higher adolescent birth rate **(Ado.Birth)**
+* Higher adolescent birth rate is correlated with:
+  + lower ratio of females to males with at least secondary education
+  + lower expected years of schooling
+  + lower life expectancy
+  + lower GNI
+* Higher GNI seems to associated with:
+  + higher ratio of females to males with at least secondary education
+  + higher expected years of schooling
+  + higher life expectancy
+* It seems that ratio of females to males in the labour force **(Labo.FM)** nor percentage of female representatives in parliament **(Parli.F)** are not statistically significantly associated with any of the other variables.
+  
+
+
+### 2. Principal component analysis with raw data
+
+I have had a hard time understanding PCA, but our course material had a very clear intro to this:
+(Quoted directly from our course material:)
+*"[Principal Component Analysis](https://en.wikipedia.org/wiki/Principal_component_analysis) (PCA) can be performed by two sightly different matrix decomposition methods from linear algebra: the [Eigenvalue Decomposition](https://en.wikipedia.org/wiki/Eigendecomposition_of_a_matrix) and the [Singular Value Decomposition](https://en.wikipedia.org/wiki/Singular_value_decomposition) (SVD). 
+
+There are two functions in the default package distribution of R that can be used to perform PCA: `princomp()` and `prcomp()`. The `prcomp()` function uses the SVD and is the preferred, more numerically accurate method.
+
+Both methods quite literally *decompose* a data matrix into a product of smaller matrices, which let's us extract the underlying **principal components**. This makes it possible to approximate a lower dimensional representation of the data by choosing only a few principal components."*
+
+
+We'll first run a PCA on raw, non-standardized data (part 2) and then on standardized data (part 3). Finally, we'll interpret the results on part 4 of this assignment.
+
+
+
+```{r, message=FALSE, warning=FALSE}
+# perform principal component analysis (with the SVD method)
+pca_human <- prcomp(human)
+
+# create and print out a summary of pca_human (= variability captured by the principal components)
+s <- summary(pca_human)
+summary(pca_human)
+
+# rounded percentanges of variance captured by each PC
+pca_pr <- round(1*s$importance[2, ], digits = 1)*100
+pca_pr
+
+# create object pc_lab to be used as axis labels
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
+
+# draw a biplot
+biplot(pca_human, choices=1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"), xlab = pc_lab[1], ylab = pc_lab[2])
+
+```
+
+All the data is clustered to the upper right corner of the plot. PC1 explains 100% of the total variance of the dataset. Because of a vector parallel to PC1, we know that GNI contributes mostly and only to PC1. This means that knowing the position of an observation in relation to PC1, it would be possible to have an accurate view of how the observation is related to other observations in our sample and basically we would only need GNI-information to determine that. *Since the data is not scaled* the high influence of GNI to PC1 is most probably due to GNI having the mos variance of the variables in our dataset!
+
+
+
+
+
+### 3. Principal component analysis with standardized data
+
+```{r, message=FALSE}
+# standardize the variables
+human_std <- scale(human)
+
+# print out summaries of the standardized variables
+summary(human_std)
+
+# perform principal component analysis (with the SVD method)
+pca_human_std <- prcomp(human_std)
+pca_human_std
+
+# create and print out a summary of pca_human (= variability captured by the principal components)
+s_hs <- summary(pca_human_std)
+summary(pca_human_std)
+
+# rounded percentanges of variance captured by each PC
+pca_pr_hs <- round(1*s_hs$importance[2, ], digits = 1)*100
+pca_pr_hs
+
+# create object pc_lab to be used as axis labels
+pc_lab_hs <- paste0(names(pca_pr_hs), " (", pca_pr_hs, "%)")
+
+# draw a biplot
+biplot(pca_human_std, choices=1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"), xlab = pc_lab_hs[1], ylab = pc_lab_hs[2])
+
+
+
+```
+The plot with standardized data look very different from the earlier biplot made with unstandardized data.
+Also, the variability captured by the principal components seems to be distributed more realistically between PCs. The results between unstandardized and standardized data PCA are different since PCA requires data scaling for variable comparison.
+
+For the PCA with standardized data:
+
+* PC1 explains `r round(1*s_hs$importance[2,1], digits = 2)*100  ` % of variance in the dataset.
+* PC2 explains `r round(1*s_hs$importance[2,2], digits = 2)*100  ` % of variance in the dataset.
+* PC3 explains `r round(1*s_hs$importance[2,3], digits = 2)*100  ` % of variance in the dataset.
+* PC4 explains `r round(1*s_hs$importance[2,4], digits = 2)*100  ` % of variance in the dataset.
+* PC5 explains `r round(1*s_hs$importance[2,5], digits = 2)*100  ` % of variance in the dataset.
+* PC6 explains `r round(1*s_hs$importance[2,6], digits = 2)*100  ` % of variance in the dataset.
+* PC7 explains `r round(1*s_hs$importance[2,7], digits = 2)*100  ` % of variance in the dataset.
+* PC8 explains `r round(1*s_hs$importance[2,8], digits = 2)*100  ` % of variance in the dataset.
+
+
+In summary, **the data should be scaled** before PCA for the analysis to be trustworthy.
+
+
+
+### 4. Interpretations
+
+I'll elaborate on the results of the PCA with standardized data:
+
+PC1 explains the most (53,6%) of the variability in the dataset, and the variables that mostly affect it are:
+
+* Expected years of schooling *(positive effect)*
+* Life expectancy at birth *(positive effect)*
+* GNI *(positive effect)*
+* Ratio of females to males with at least secondary education *(positive effect)*
+* Maternal mortality *(negative effect)*
+* Adolescent birth rate *(negative effect)*
+
+The four variables with a positive effect on PC1 are positively correlated with each other and the ones with a negative effect (two) are correlated positively with each other and negatively with the prior four. 
+
+
+PC2 explains the second most (16,2%) of the variability in the dataset, and the variables that mostly affect it are:
+
+* Ratio of females to males in the labour force *(positive effect)*
+* Percentage of female representatives in parliament *(positive effect)*
+
+These two variables are positively correlated with each other and not with any of the variables affecting PC1 (since the arrows are perpendicular to the others).
+
+
+
+
+```{r, message=FALSE}
+
+
+```
+
+
+
+### 5. Analysis of tea dataset
+
+According to our assignment *the tea data comes from the FactoMineR package and it is measured with a questionnaire on tea: 300 individuals were asked how they drink tea (18 questions) and what are their product's perception (12 questions). In addition, some personal details were asked (4 questions).*
+
+We'll first load the data (wrangled by our course professor K.V.) and then start exploring and analyzing it!
+
+```{r, message=FALSE}
+# load the data
+tea <- read.csv("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/tea.csv", stringsAsFactors = TRUE)
+
+# Structure and dimensions of the data
+str(tea);dim(tea)
+
+# View data
+View(tea)
+
+```
+
+
+Let's visualize the data:
+
+```{r, message=FALSE}
+
+# summary of the data
+summary(tea)
+
+
+# Summary plot matrix grouped by sex and age quartile
+
+tea_long <- tea %>% 
+  pivot_longer(cols=-c(sex,age_Q, age), names_to = "variable",values_to = 'value') %>%
+  group_by(sex,age_Q,variable,value) %>%
+  summarise(n=n())
+tea_long
+
+
+
+# Barplots of all variables
+
+# visualize the dataset
+pivot_longer(tea, cols = -c(age)) %>% 
+  ggplot(aes(value)) + facet_wrap("name", scales = "free", ncol=6) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+
+
+
+```
+Unfortunately there is so much data we don't get good looking plots.
+We'll have to choose some of the most interesting variables to plot:
+
+```{r, message=FALSE}
+# column names to keep in the dataset
+keep_columns <- c("age_Q", "sex", "Tea", "How", "price", "SPC", "Sport", "frequency", "relaxing", "healthy", "sophisticated")
+
+# select the 'keep_columns' to create a new dataset
+tea_time <- select(tea, all_of(keep_columns))
+
+# look at the summaries and structure of the data
+summary(tea_time)
+
+
+pivot_longer(tea_time, cols = everything()) %>% 
+  ggplot(aes(value)) + facet_wrap("name", scales = "free", ncol=6) +
+  geom_bar() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+```
+
+Again, quoted a very insightful part of our course material: *[Multiple Correspondence Analysis](https://en.wikipedia.org/wiki/Multiple_correspondence_analysis) (MCA) is a method to analyze qualitative data and it is an extension of Correspondence analysis (CA). MCA can be used to detect patterns or structure in the data as well as in dimension reduction.*
+
+Since there are multiple variables. We'll choose and focus on only the ones we previously chose: 
+"age_Q", "sex", "Tea", "How", "price", "SPC", "Sport", "frequency", "relaxing", "healthy", "sophisticated" and run a MCA.
+
+```{r, message=FALSE}
+
+# multiple correspondence analysis
+mca <- MCA(tea_time, graph = TRUE)
+
+# summary of the model
+mca
+summary(mca)
+
+# visualize MCA
+plot(mca, invisible=c("ind"), graph.type = "classic", habillage = "quali") #individuals (ind) invisible = plots variables
+plot(mca, invisible=c("var"), graph.type = "classic") #variables (var) invisible = plots individuals
+
+
+```
+
+Our **first and fourth plots (MCA factor map)** show variable categories with similar profiles grouped together;
+
+* 'non-workers', '+60' year olds and drinking tea in an 'other' way (i.e. not alone, not with lemon nor milk) have similar profiles. Also 'student' and '15-24' year old seem to have similar profiles.
+* 'non-workers', '+60' year olds and 'other' profiles seem to be negatively correlated with 'student' and '15-24' yo categories (opposite sides of plot origin), and especially with '25-34' year old and 'workman'.
+
+* 'non-workers', '+60' year olds, 'other' kind of drinkers, 'student', '15-24' year olds, 'senior', and 'p_unknown' (tea price unknown) seem to be the variable categories that are most represented in our data (tehy are the farthers of the origo).
+
+From the **third plot (correlation between variables and principal dimensions)** we can see that 
+
+* SPC (socio-professional category) and age are correlated with each other
+* of all the variables SPC and age are the least correlated with the first dimensions (dim1 and 2) which explain the most (15%) of the variance of the chosen data.
+
+To assess whether the variable categories differ significantly from each other we'll draw confidence ellipses, which is possible with 'FactoMineR':
+```{r, message=FALSE}
+plotellipses(mca)
+```
+
+The plots are hard to read, so we'll focus on specific variables 4 at a time.
+
+```{r, message=FALSE}
+plotellipses(mca, keepvar = c("sex", "Tea", "age_Q", "How"))
+plotellipses(mca, keepvar = c("Sport", "price", "frequency", "SPC"))
+plotellipses(mca, keepvar = c("relaxing", "healthy", "sophisticated"))
+```
+This shows us:
+
+* categories 'sex' and 'How' seem to be different from each other.
+* For the 'age_Q' variable, '15-24' and '+60' categories seem different from the other categories.
+* 'Earl Grey' seems to differ from the other tea varieties
+* Drinking 'Other' way tea seems to differ from drinking alone, with lemon or with milk.
+* 'students' on 'non-workers' are different and different from the other SPC-categories.
+* Doing sports or not differs.
+* Frequency categories don't seem to differ significantly from each other.
+* Tea with unknown price 'p_unknown' seems to differ from the other price categories.
+* All three product perception variables 'healthy', 'relaxing' and 'sophisticated' seem to have differing categories.
+
+
+&check; &check; &check; &check; &check; Ch5 done!
+
+
+### Resources
+
+* [p-value matrix for bivariate correlation](https://stackoverflow.com/questions/21147329/add-p-values-in-corrplot-matrix)
+* [p-value matrix for bivariate correlation 2](https://statisticsglobe.com/add-p-values-correlation-matrix-plot-r)
+* [On PCA interpretation](https://datacamp.com/tutorial/pca-analysis-r)
+* [On PCA biplot interpretation 1](https://blog.bioturing.com/2018/06/18/how-to-read-pca-biplots-and-scree-plots/)
+* [On PCA biplot interpretation 2](https://www.geo.fu-berlin.de/en/v/soga/Geodata-analysis/Principal-Component-Analysis/principal-components-basics/Interpretation-and-visualization/index.html)
+* [ggplot2 book](ggplot2-book.org)
+* [Data visualization in R](rgraphics.org)
+* [MCA interpretation](http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/114-mca-multiple-correspondence-analysis-in-r-essentials/)
+
+```{r, message=FALSE}
+
+
+```

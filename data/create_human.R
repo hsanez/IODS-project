@@ -82,3 +82,94 @@ read_csv("human.csv")
 
 # Renaming with dplyr
 # https://github.com/KimmoVehkalahti/Helsinki-Open-Data-Science/blob/master/datasets/human_meta.txt
+
+
+
+
+#### ASSIGNMENT 5 ####
+# hsanez
+# 30.11.2022
+# DATA WRANGLING PART
+
+
+### 1. Mutating the data using 'stringr'
+
+# access the stringr package (part of `tidyverse`)
+library(stringr)
+
+# Read data where the GNI-variable is of type 'character'
+hum0 <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/Helsinki-Open-Data-Science/master/datasets/human1.txt", 
+                    sep =",", header = T)
+
+# Alternatively our own dataset
+# hum <- read_csv("human.csv")
+
+# Structure and dimensions of the data
+str(hum0); dim(hum0)
+# GNI
+str(hum0$GNI)
+
+# remove the commas from GNI and print out a numeric version of it
+hum0$GNI <- str_replace(hum$GNI, pattern=",", replace ="") %>% as.numeric()
+
+# check GNI structure
+str(hum0$GNI)
+
+
+
+### 2. Exclude unneeded variables
+
+# Define variables to keep
+keep_vars <- c( "Country", "Edu2.FM", "Labo.FM", "Edu.Exp", "Life.Exp", "GNI", "Mat.Mor", "Ado.Birth", "Parli.F")
+
+# subset data with variables to keep and check result
+hum2 <- hum0 %>% select(all_of(keep_vars))
+str(hum2); dim(hum2)
+
+
+
+### 3. Remove rows with missing values and check result
+hum2 <- filter(hum2, complete.cases(hum2))
+str(hum2);dim(hum2)
+
+
+
+### 4. Remove observations which relate to regions instead of countries
+
+# glimpse at the start and end of the data
+head(hum2)
+tail(hum2)
+# it seems that regions are at the end  of  the dataset.
+tail(hum2, 15) # We can see 7 regions at the bottom of the dataset
+
+# We know from the assignment information that we should end up with 155 observations so let's remove the 7 regions we see at the end of the 'Country' variable.
+hum3 <- hum2[1:(nrow(hum2)-7), ]
+# check dimensions
+dim(hum3) # 155 observations, look's good!
+
+
+
+### 5. Define row names
+
+# add countries as rownames
+rownames(hum3) <- hum3$Country
+head(hum3)
+
+# remove 'Country' variable
+hum <- select(hum3, -Country)
+dim(hum) # 155 observations, 8 variables
+
+# save data
+# OBS! To save or row names we need to save this dataset with write.csv(), not write_csv()
+# ALSO NOTICE THIS WHILW READING THE DATA! use read.csv()
+#write.csv(hum, file='human_row_names.csv', row.names=TRUE)
+
+#check it reads correctly
+humm <- read.csv('human_row_names.csv', row.names = 1)
+head(humm)
+
+# Looking good!-> Data wrangling complete!
+
+
+# Resources
+# https://stackoverflow.com/questions/13271820/specifying-row-names-when-reading-in-a-file
